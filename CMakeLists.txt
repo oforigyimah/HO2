@@ -24,10 +24,7 @@ add_executable(HO2 src/main.c)
 #)
 
 
-add_subdirectory(
-         external/curl
-        external/sha2
-    )
+
 
 
 #target_link_libraries(HO2
@@ -38,14 +35,18 @@ add_subdirectory(
 #        PUBLIC C:\\curl-8.6.0_1-win64-mingw\\include
 #)
 
-target_link_libraries(HO2
-        PUBLIC curl
-        PUBLIC sha2
-)
-
+add_subdirectory(external/curl)
+add_subdirectory(external/sha2)
 target_link_directories(HO2
+        PUBLIC external/curl/lib
         PUBLIC external/sha2/lib
 )
 target_include_directories(HO2
+        PUBLIC external/curl/include
         PUBLIC external/sha2/include
+)
+
+target_link_libraries(HO2
+        PUBLIC curl
+        PUBLIC sha2
 )
