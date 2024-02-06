@@ -1,6 +1,7 @@
 [submodule "external/curl"]
     path = external/curl
     url = https://github.com/curl/curl.git
-[submodule "external/sha2"]
-	path = external/sha2
-	url = https://github.com/aws-samples/sha2-with-c-intrinsic
+
+[submodule "external/polarssl"]
+	path = external/polarssl
+	url = https://github.com/dsommers/polarssl.git

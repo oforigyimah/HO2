@@ -36,17 +36,17 @@ add_executable(HO2 src/main.c)
 #)
 
 add_subdirectory(external/curl)
-add_subdirectory(external/sha2)
+add_subdirectory(external/polarssl)
 target_link_directories(HO2
         PUBLIC external/curl/lib
-        PUBLIC external/sha2/lib
+        PUBLIC external/polarssl/lib
 )
 target_include_directories(HO2
         PUBLIC external/curl/include
-        PUBLIC external/sha2/include
+        PUBLIC external/polarssl/include
 )
 
 target_link_libraries(HO2
         PUBLIC curl
-        PUBLIC sha2
+        PUBLIC polarssl
 )
