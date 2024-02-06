@@ -2,6 +2,3 @@
     path = external/curl
     url = https://github.com/curl/curl.git
 
-[submodule "external/polarssl"]
-	path = external/polarssl
-	url = https://github.com/dsommers/polarssl.git

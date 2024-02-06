@@ -13,8 +13,23 @@ void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, uns
     sha2_finish(ctx, hash);
 }
 
+void openssl_sha256(unsigned char *input, size_t length, unsigned char *hash, const EVP_MD *md, EVP_MD_CTX *mdctx, unsigned int len) {
+    mdctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(mdctx, md, NULL);
+    EVP_DigestUpdate(mdctx, input, length);
+    EVP_DigestFinal_ex(mdctx, hash, &len);
+    EVP_MD_CTX_free(mdctx);
+}
+
+void hash_to_hex(unsigned char *hash, char *hexstr, unsigned int len) {
+    for(unsigned int i = 0; i < len; i++) {
+        sprintf(hexstr + (i * 2), "%02x", hash[i]);
+    }
+}
+
 int main() {
     unsigned char hash[EVP_MAX_MD_SIZE];
+    char hexstr[(EVP_MAX_MD_SIZE * 2) + 1];
     char *input = "Hello, World! my name is sha2!";
     sha2_context ctx;
     clock_t start, end;
@@ -26,6 +41,8 @@ int main() {
         sha2_starts(&ctx, 0); // 0 for SHA-256, 1 for SHA-224
         sha2_update(&ctx, (unsigned char *)input, strlen(input));
         sha2_finish(&ctx, hash);
+
+
     }
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
@@ -63,6 +80,14 @@ int main() {
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("Time taken by OpenSSL SHA-256: %f\n", cpu_time_used);
+
+    start = clock();
+    for(int j = 0; j < ITERATIONS; j++) {
+        openssl_sha256((unsigned char *)input, strlen(input), hash, md, mdctx, len);
+    }
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken by OpenSSL as a function SHA-256: %f\n", cpu_time_used);
 
     return 0;
 }
