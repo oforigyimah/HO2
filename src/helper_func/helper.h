@@ -1,7 +1,8 @@
-#ifndef _HELPER_H
-#define _HELPER_H
+#ifndef HELPER_H
+#define HELPER_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #define MAX_HASHES 30
 
@@ -17,4 +18,7 @@ void byte_array_to_hex(const uint8_t* byte_array, char* hex_string, int byte_arr
 void slice(const char* input, char* output, int start, int end);
 void reverse(char* input, int length);
 
-#endif // _HELPER_H
+void spawn_process(char* program, char** args, pid_t* pid);
+void wait_for_process(pid_t pid, int* status);
+
+#endif // HELPER_H

@@ -4,9 +4,11 @@
 #ifdef _WIN32
     #include <windows.h>
     #include <intrin.h>
+    #include <process.h>
 #else
     #include <unistd.h>
     #include <sys/sysinfo.h>
+    #include <sys/wait.h>
 #endif
 
 int not_main() {
@@ -58,4 +60,27 @@ int not_main() {
     #endif
 
     return 0;
+}
+
+void spawn_process(char* program, char** args, pid_t* pid) {
+#ifdef _WIN32
+    // Windows-specific code
+        *pid = _spawnl(_P_NOWAIT, program, args[0], args[1], NULL);
+#else
+    // Linux-specific code
+    *pid = fork();
+    if (*pid == 0) {
+        execvp(program, args);
+    }
+#endif
+}
+
+void wait_for_process(pid_t pid, int* status){
+#ifdef _WIN32
+    // Windows-specific code
+        _cwait(status, pid, 0);
+#else
+    // Linux-specific code
+    waitpid(pid, status, 0);
+#endif
 }

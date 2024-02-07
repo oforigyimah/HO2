@@ -8,7 +8,7 @@
 #include "../../external/polarssl/include/polarssl/sha2.h"
 #include "../helper_func/helper.h"
 
-#define ITERATIONS 5000000
+#define ITERATIONS 50
 
 void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, unsigned char *hash) {
     sha2_starts(ctx, 0); // 0 for SHA-256, 1 for SHA-224
@@ -16,12 +16,10 @@ void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, uns
     sha2_finish(ctx, hash);
 }
 
-void openssl_sha256(unsigned char *input, size_t length, unsigned char *hash, const EVP_MD *md, EVP_MD_CTX *mdctx, unsigned int len) {
-    mdctx = EVP_MD_CTX_new();
+void openssl_sha256(char *input, size_t length, unsigned char *hash, const EVP_MD *md, EVP_MD_CTX *mdctx, unsigned int *len) {
     EVP_DigestInit_ex(mdctx, md, NULL);
     EVP_DigestUpdate(mdctx, input, length);
-    EVP_DigestFinal_ex(mdctx, hash, &len);
-    EVP_MD_CTX_free(mdctx);
+    EVP_DigestFinal_ex(mdctx, hash, len);
 }
 
 void hash_to_hex(unsigned char *hash, char *hexstr, unsigned int len) {
