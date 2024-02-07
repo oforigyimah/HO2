@@ -8,9 +8,9 @@ if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
 endif ()
 
-add_executable(HO2 src/main.c)
+add_executable(HO2 src/main.c src/helper_func/string_helper.c)
 add_executable(HO2Mark src/benchmark/main.c)
-add_executable(child_ohno_openssl src/childps/child_ohno_openssl.c src/helper_func/string_helper.c)
+add_executable(child_ohno_openssl src/childps/child_ohno_openssl.c src/helper_func/string_helper.c src/helper_func/files_helper.c)
 
 add_subdirectory(external/polarssl)
 add_subdirectory(external/hash)

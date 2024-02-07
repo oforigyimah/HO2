@@ -6,8 +6,9 @@
 #include <time.h>
 #include <openssl/evp.h>
 #include "../../external/polarssl/include/polarssl/sha2.h"
+#include "../helper_func/helper.h"
 
-#define ITERATIONS 50
+#define ITERATIONS 5000000
 
 void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, unsigned char *hash) {
     sha2_starts(ctx, 0); // 0 for SHA-256, 1 for SHA-224
@@ -26,6 +27,18 @@ void openssl_sha256(unsigned char *input, size_t length, unsigned char *hash, co
 void hash_to_hex(unsigned char *hash, char *hexstr, unsigned int len) {
     for(unsigned int i = 0; i < len; i++) {
         sprintf(hexstr + (i * 2), "%02x", hash[i]);
+    }
+}
+
+void compare(char* hexstr, char **hashes, int hashes_len){
+    int bool;
+    for (int i = 0; i < hashes_len; i++){
+        bool = strcmp(hexstr, hashes[i]);
+        if (bool != 0) continue;
+        else {
+            handle_passed_hash(hexstr);
+            return;
+        }
     }
 }
 

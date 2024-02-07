@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
     OpenSSL_add_all_digests();
     md = EVP_get_digestbyname("SHA256");
 
+    mdctx = EVP_MD_CTX_new();
+
     for (j = start; j < end; j++){
         for (int q = 0; q < 2; q++){
             if (q) sprintf(num, "%ld", j);
@@ -49,20 +51,19 @@ int main(int argc, char *argv[]) {
                 strncpy(starting_hash, sliced_hex_string, SHA512_STRING_HASH_SIZE);
 
                 for (int b = 0; b  < ITERATIONS; b ++){
-                    mdctx = EVP_MD_CTX_new();
                     EVP_DigestInit_ex(mdctx, md, NULL);
                     EVP_DigestUpdate(mdctx, starting_hash, strlen(starting_hash));
                     EVP_DigestFinal_ex(mdctx, hash, &len);
-                    EVP_MD_CTX_free(mdctx);
-                    hash_to_hex(hash, hexstr, len);
+                    byte_array_to_hex(hash, hexstr, len);
                     strncpy(starting_hash, hexstr, SHA512_STRING_HASH_SIZE);
-                    printf("%s\n", hexstr);
+//                    printf("%s\n", hexstr);
                 }
             }
 
-
-
         }
     }
+
+    EVP_MD_CTX_free(mdctx);
+    return 0;
 
 }
