@@ -65,7 +65,7 @@ int not_main() {
 void spawn_process(char* program, char** args, pid_t* pid) {
 #ifdef _WIN32
     // Windows-specific code
-        *pid = _spawnl(_P_NOWAIT, program, args[0], args[1], NULL);
+    *pid = _spawnv(_P_NOWAIT, program, (const char *const *) args);
 #else
     // Linux-specific code
     *pid = fork();
@@ -78,15 +78,9 @@ void spawn_process(char* program, char** args, pid_t* pid) {
 void wait_for_process(pid_t pid, int* status){
 #ifdef _WIN32
     // Windows-specific code
-    HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
-    WaitForSingleObject(hProcess, INFINITE);
-    DWORD exitCode;
-    if (!GetExitCodeProcess(hProcess, &exitCode)) {
-        perror("Failed to get exit code");
-        exit(EXIT_FAILURE);
+    if (_cwait(status, pid, 0) == -1) {
+        perror("Child process did not exit normally");
     }
-    *status = (int)exitCode;
-    CloseHandle(hProcess);
 #else
     // Linux-specific code
     waitpid(pid, status, 0);

@@ -4,9 +4,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <openssl/evp.h>
 #include "../../external/polarssl/include/polarssl/sha2.h"
 #include "../helper_func/helper.h"
+
+#ifdef _WIN32
+//    #include "C:\\Program Files\\OpenSSL-Win64\\include\\openssl\\evp.h"
+#include <openssl/evp.h>
+
+#else
+    #include <openssl/evp.h>
+#endif
 
 #define ITERATIONS 50
 

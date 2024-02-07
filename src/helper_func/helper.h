@@ -1,8 +1,14 @@
 #ifndef HELPER_H
 #define HELPER_H
 
+#ifdef _WIN32
+#include <process.h>
+#else
+    #include <unistd.h>
+#endif
+#include <sys/types.h>
 #include <stdint.h>
-#include <stdlib.h>
+
 
 #define MAX_HASHES 30
 
