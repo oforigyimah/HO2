@@ -24,8 +24,6 @@ int main(int argc, char *argv[]) {
     char sliced_hex_string[SHA256_STRING_HASH_SIZE];
 
     if (argc != 3){
-        printf("argc is %d\n", argc);
-        printf("argv[0] is and argv[1] %s\n", argv[0], argv[1]);
         printf("Usage: %s <start> <end>\n", argv[0]);
         exit(EXIT_FAILURE);
     }

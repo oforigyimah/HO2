@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd out/build || return ; ./HO2
+cd out/build || return ; .bin//HO2
