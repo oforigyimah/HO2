@@ -5,7 +5,11 @@
 
 
 int main(){
+#ifdef _WIN32
+    char program[] = "childps\\child_ohno_openssl.exe";
+#else
     char program[] = "childps/child_ohno_openssl";
+#endif
     char *args[] = {program, "0", "1", NULL};
     pid_t pid;
     int status;

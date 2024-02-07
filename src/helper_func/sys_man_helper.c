@@ -78,7 +78,15 @@ void spawn_process(char* program, char** args, pid_t* pid) {
 void wait_for_process(pid_t pid, int* status){
 #ifdef _WIN32
     // Windows-specific code
-        _cwait(status, pid, 0);
+    HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
+    WaitForSingleObject(hProcess, INFINITE);
+    DWORD exitCode;
+    if (!GetExitCodeProcess(hProcess, &exitCode)) {
+        perror("Failed to get exit code");
+        exit(EXIT_FAILURE);
+    }
+    *status = (int)exitCode;
+    CloseHandle(hProcess);
 #else
     // Linux-specific code
     waitpid(pid, status, 0);
