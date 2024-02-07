@@ -15,7 +15,7 @@
     #include <openssl/evp.h>
 #endif
 
-#define ITERATIONS 50
+#define ITERATIONS 1000000
 
 void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, unsigned char *hash) {
     sha2_starts(ctx, 0); // 0 for SHA-256, 1 for SHA-224

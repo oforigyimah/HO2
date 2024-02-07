@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
             for (int a = 0; a < 64; a++){
                 slice(sha512_hex_string, sliced_hex_string, a, 64 + a);
                 strncpy(starting_hash, sliced_hex_string, SHA512_STRING_HASH_SIZE);
+                printf("starting hash is %s\n", starting_hash);
 
                 for (int b = 0; b  < ITERATIONS; b ++){;
                     openssl_sha256(starting_hash, strlen(starting_hash), hash, md, mdctx, &len);
