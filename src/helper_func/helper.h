@@ -30,6 +30,7 @@ void reverse(char* input, int length);
 char* get_home_dir();
 char* get_app_dir();
 char *get_hash_path();
+char *get_passed_hash_dir_path();
 
 // Function prototypes of sys_mam_helper.c
 void spawn_process(char* program, char** args, pid_t* pid);

@@ -7,7 +7,6 @@
 
 int main(int argc, char *argv[]){
 
-
     if (argc != 2){
         printf("Usage: %s <noice>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -18,44 +17,21 @@ int main(int argc, char *argv[]){
     uint8_t sha512_byte_array[SHA512_HASH_SIZE];
     char sha512_hex_string[SHA512_STRING_HASH_SIZE];
     char starting_hash[SHA256_STRING_HASH_SIZE];
-    char temp_hash[SHA256_STRING_HASH_SIZE];
     char sliced_hex_string[SHA256_STRING_HASH_SIZE];
-
-
-    char text[] = "1";
-
-    sha512(text, strlen(text), sha512_byte_array);
-    byte_array_to_hex(sha512_byte_array, sha512_hex_string, SHA512_HASH_SIZE);
-    printf("SHA512: %s\n", sha512_hex_string);
-    reverse(sha512_hex_string, 128);
-    printf("Reversed: %s\n", sha512_hex_string);
-    slice(sha512_hex_string, sliced_hex_string, 0, 64);
-    printf("Sliced: %s\n", sliced_hex_string);
 
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int hash_len;
     EVP_MD_CTX *mdctx;
-
     OpenSSL_add_all_digests();
     mdctx = EVP_MD_CTX_create();
-    EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL);
-    EVP_DigestUpdate(mdctx, sliced_hex_string, strlen(sliced_hex_string));
-    EVP_DigestFinal_ex(mdctx, hash, &hash_len);
-
-    byte_array_to_hex(hash, starting_hash, hash_len);
-    printf("Starting hash: %s\n", starting_hash);
-
 
     int hash_count;
-
     char *hashes_path = get_hash_path();
-
     char **hashes;
     char **games;
 
     hashes = malloc(MAX_HASHES * sizeof(char *));
     games = malloc(MAX_HASHES * sizeof(char *));
-
 
     if (hashes == NULL) {
         printf("Failed to allocate memory for hashes.\n");
@@ -102,16 +78,12 @@ int main(int argc, char *argv[]){
                     EVP_DigestFinal_ex(mdctx, hash, &hash_len);
                     byte_array_to_hex(hash, starting_hash, SHA256_HASH_SIZE);
                     if (compare(sliced_hex_string, starting_hash, (const char **) hashes, hash_count) == 0) {
-                        printf("Found hash: %s\n", sliced_hex_string);
                         break;
                     }
                 }
             }
         }
     }
-
-
-
 
 
     EVP_MD_CTX_destroy(mdctx);

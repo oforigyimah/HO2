@@ -40,7 +40,7 @@ int compare(char* parent_string,char* hexstr,const char **hashes, int hashes_len
         if (strcmp(hexstr, hashes[i]) != 0) continue;
         else {
             printf("Found match for %s: %s\n", parent_string, hexstr);
-            handle_passed_hash(parent_string, "child_ohno", i);
+            handle_passed_hash(parent_string, hexstr,get_passed_hash_dir_path(), i);
             return 0;
         }
     }
