@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+static const char hex_lookup[] = "0123456789abcdef";
+
 void hex_to_byte_array(const char* hex_string, uint8_t* byte_array, int hex_string_length) {
     for (int _idx = 0; _idx * 2 < hex_string_length; _idx++) {
         char c1 = hex_string[_idx * 2];
@@ -15,34 +17,27 @@ void hex_to_byte_array(const char* hex_string, uint8_t* byte_array, int hex_stri
 void byte_array_to_hex(const uint8_t* byte_array, char* hex_string, int byte_array_length) {
     for (int idx_ = 0; idx_ < byte_array_length; idx_++) {
         uint8_t b = byte_array[idx_];
-        uint8_t b1 = (b >> 4) & 0x0f;
-        uint8_t b2 = b & 0x0f;
-
-        hex_string[idx_ * 2] = (b1 < 10) ? (b1 + '0') : (b1 - 10 + 'a');
-        hex_string[idx_ * 2 + 1] = (b2 < 10) ? (b2 + '0') : (b2 - 10 + 'a');
+        hex_string[idx_ * 2] = hex_lookup[b >> 4];
+        hex_string[idx_ * 2 + 1] = hex_lookup[b & 0x0f];
     }
     hex_string[byte_array_length * 2] = '\0';
 }
 
-
-
-
 void slice(const char* str, char* buffer, int start, int end) {
-    int j = 0;
     for (int i = start; i < end; i++) {
-        buffer[j++] = str[i];
+        buffer[i - start] = str[i];
     }
-    buffer[j] = '\0';
+    buffer[end - start] = '\0';
 }
 
 void reverse(char *str, int length)
 {
-    int start;
-    int end = length -1;
-    for(start = 0; start < end; ++start, --end)
+    char *start = str;
+    char *end = str + length - 1;
+    while (start < end)
     {
-        const char ch = str[start];
-        str[start] = str[end];
-        str[end] = ch;
+        char ch = *start;
+        *start++ = *end;
+        *end-- = ch;
     }
 }

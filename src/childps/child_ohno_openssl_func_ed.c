@@ -43,16 +43,15 @@ int main(int argc, char *argv[]) {
             if (q) sprintf(num, "%ld", j);
             else sprintf(num, "%ld", -j);
             printf("num is %s\n", num);
-            sha512(num, strlen(num), sha512_byte_array);
+            sha512(num, 512, sha512_byte_array);
             byte_array_to_hex(sha512_byte_array, sha512_hex_string, SHA512_HASH_SIZE);
 
             for (int a = 0; a < 64; a++){
                 slice(sha512_hex_string, sliced_hex_string, a, 64 + a);
                 strncpy(starting_hash, sliced_hex_string, SHA512_STRING_HASH_SIZE);
-                printf("starting hash is %s\n", starting_hash);
 
                 for (int b = 0; b  < ITERATIONS; b ++){;
-                    openssl_sha256(starting_hash, strlen(starting_hash), hash, md, mdctx, &len);
+                    openssl_sha256(starting_hash, 128, hash, md, mdctx, &len);
                     byte_array_to_hex(hash, hexstr, len);
                     strncpy(starting_hash, hexstr, SHA512_STRING_HASH_SIZE);
                 }
