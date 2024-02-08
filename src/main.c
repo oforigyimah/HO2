@@ -4,31 +4,7 @@
 #include <string.h>
 
 int main(){
-#ifdef _WIN32
-    char program[] = "childps\\child_ohno_openssl.exe";
-#else
-    char program[] = "childps/child_ohno_openssl";
-#endif
-    char *args[] = {program, "0", "100", NULL};
-    pid_t pid;
-    int status;
-
-    spawn_process(program, args, &pid);
-    if (pid == -1) {
-        perror("Process creation failed");
-        exit(EXIT_FAILURE);
-    }
-    wait_for_process(pid, &status);
-#ifdef _WIN32
-    if (status == -1) {
-        perror("Child process did not exit normally");
-    }
-#else
-    if (WIFEXITED(status)) {
-        printf("Child process exited with status %d\n", WEXITSTATUS(status));
-    } else {
-        printf("Child process did not exit normally\n");
-    }
-#endif
+    char *home = get_home_dir();
+    printf("Home: %s\n", home);
     return 0;
 }

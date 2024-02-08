@@ -2,7 +2,19 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
+
+#ifdef _WIN32
+    #include <direct.h>
+    #include <io.h>
+    #define mkdir(path, mode) _mkdir(path)
+    #define stat _stat
+    #define access _access
+    struct _stat st;
+#else
+    #include <sys/stat.h>
+    #include <unistd.h>
+    struct stat st;
+#endif
 
 #define MAX_HASHES 30
 
@@ -57,8 +69,6 @@ int get_hash(char *filepath, char *hashes[MAX_HASHES], char *games[MAX_HASHES]){
 
 
 int handle_passed_hash(char *passed_hash, char *path){
-    struct stat st = {0};
-
     // Check if the directory exists
     if (stat(path, &st) == -1) {
         // If the directory does not exist, create it
@@ -81,3 +91,14 @@ int handle_passed_hash(char *passed_hash, char *path){
     }
     return 1;
 }
+
+int file_exists(const char *filepath) {
+    if (access(filepath, 0) != -1) {
+        // file exists
+        return 1;
+    } else {
+        // file doesn't exist
+        return 0;
+    }
+}
+

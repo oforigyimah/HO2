@@ -11,6 +11,7 @@ endif ()
 
 set(SOURCE_FILES "src/main.c" "src/helper_func/*.c")
 set(CHILD_OHNO_FILES "src/childps/child_ohno_openssl.c" "src/childps/child_ohno_openssl_func_ed.c" "src/childps/child_ohno_polarssl.c" "src/childps/child_ohno_polarssl_func_ed.c")
+set(HElPER_FUNCS "src/helper_func/*.c")
 
 foreach(file ${CHILD_OHNO_FILES})
     string(REPLACE "src/childps/" "" target ${file})
@@ -21,11 +22,18 @@ foreach(file ${CHILD_OHNO_FILES})
 endforeach()
 
 file(GLOB HO2_SOURCES ${SOURCE_FILES})
+file(GLOB HElPER_FUNC_FILES ${HElPER_FUNCS})
 add_executable(HO2 ${HO2_SOURCES})
 set_target_properties(HO2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_executable(HO2Mark src/benchmark/main.c)
 set_target_properties(HO2Mark PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/benchmark")
+
+message("helper func files: ${HElPER_FUNC_FILES}")
+
+add_executable(tests src/tests/tests.c ${HElPER_FUNC_FILES})
+set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/tests")
+
 
 add_subdirectory(external/polarssl)
 add_subdirectory(external/hash)
@@ -45,7 +53,7 @@ if(WIN32)
     list(APPEND LINK_LIBS Bcrypt.lib)
 endif()
 
-foreach(target HO2 HO2Mark child_ohno_openssl child_ohno_openssl_func_ed child_ohno_polarssl child_ohno_polarssl_func_ed)
+foreach(target HO2 HO2Mark tests child_ohno_openssl child_ohno_openssl_func_ed child_ohno_polarssl child_ohno_polarssl_func_ed)
     target_include_directories(${target} PUBLIC ${INCLUDE_DIRS})
     target_link_libraries(${target} PUBLIC ${LINK_LIBS})
     target_link_directories(${target} PUBLIC ${LINK_DIRS})

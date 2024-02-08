@@ -41,7 +41,7 @@ void compare(char* hexstr, char **hashes, int hashes_len){
         bool = strcmp(hexstr, hashes[i]);
         if (bool != 0) continue;
         else {
-            handle_passed_hash(hexstr);
+            handle_passed_hash(hexstr, "child_ohno");
             return;
         }
     }

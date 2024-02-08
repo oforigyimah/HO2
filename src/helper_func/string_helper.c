@@ -1,4 +1,8 @@
 #include <stdint.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 
 static const char hex_lookup[] = "0123456789abcdef";
 
@@ -40,4 +44,21 @@ void reverse(char *str, int length)
         *start++ = *end;
         *end-- = ch;
     }
+}
+
+char* get_home_dir() {
+    char* home_dir;
+
+#ifdef _WIN32
+    home_dir = getenv("APPDATA");
+#else
+    home_dir = getenv("HOME");
+#endif
+
+    if(home_dir == NULL) {
+        fprintf(stderr, "Error: Could not find home directory.\n");
+        return NULL;
+    }
+
+    return home_dir;
 }
