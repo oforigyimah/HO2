@@ -1,64 +1,139 @@
-#include "child_ohno.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "../../external/hash/include/hash.h"
 #include "../helper_func/helper.h"
+#include "child_ohno.h"
+#include "../../external/hash/include/hash.h"
+#include <stdio.h>
+#include <string.h>
+#include <openssl/evp.h>
 
+int main(int argc, char *argv[]){
 
-
-int main(int argc, char *argv[]) {
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    char hexstr[(EVP_MAX_MD_SIZE * 2) + 1];
-    unsigned int len;
-
-    char num[512];
-    long unsigned int number;
-
-    uint8_t sha256_byte_array[SHA256_HASH_SIZE];
-    uint8_t sha512_byte_array[SHA512_HASH_SIZE];
-    char sha256_hex_string[SHA256_STRING_HASH_SIZE];
-    char sha512_hex_string[SHA512_STRING_HASH_SIZE];
-    char starting_hash[SHA512_STRING_HASH_SIZE];
-    char sliced_hex_string[SHA256_STRING_HASH_SIZE];
 
     if (argc != 2){
-        printf("Usage: %s <number>\n", argv[0]);
+        printf("Usage: %s <noice>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+    long unsigned int noice = strtoul(argv[1], NULL, 10);
+    char noice_str[512];
 
-    number = strtoul(argv[1], NULL, 10);
+    uint8_t sha512_byte_array[SHA512_HASH_SIZE];
+    char sha512_hex_string[SHA512_STRING_HASH_SIZE];
+    char starting_hash[SHA256_STRING_HASH_SIZE];
+    char temp_hash[SHA256_STRING_HASH_SIZE];
+    char sliced_hex_string[SHA256_STRING_HASH_SIZE];
 
+
+    char text[] = "1";
+
+    sha512(text, strlen(text), sha512_byte_array);
+    byte_array_to_hex(sha512_byte_array, sha512_hex_string, SHA512_HASH_SIZE);
+    printf("SHA512: %s\n", sha512_hex_string);
+    reverse(sha512_hex_string, 128);
+    printf("Reversed: %s\n", sha512_hex_string);
+    slice(sha512_hex_string, sliced_hex_string, 0, 64);
+    printf("Sliced: %s\n", sliced_hex_string);
+
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int hash_len;
     EVP_MD_CTX *mdctx;
-    const EVP_MD *md;
+
     OpenSSL_add_all_digests();
-    md = EVP_get_digestbyname("SHA256");
+    mdctx = EVP_MD_CTX_create();
+    EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL);
+    EVP_DigestUpdate(mdctx, sliced_hex_string, strlen(sliced_hex_string));
+    EVP_DigestFinal_ex(mdctx, hash, &hash_len);
 
-    mdctx = EVP_MD_CTX_new();
+    byte_array_to_hex(hash, starting_hash, hash_len);
+    printf("Starting hash: %s\n", starting_hash);
 
-    for (int q = 0; q < 2; q++){
-        if (q) sprintf(num, "%ld", number);
-        else sprintf(num, "%ld", -number);
-        printf("num is %s\n", num);
-        sha512(num, 512, sha512_byte_array);
-        byte_array_to_hex(sha512_byte_array, sha512_hex_string, SHA512_HASH_SIZE);
 
-        for (int a = 0; a < 64; a++){
-            slice(sha512_hex_string, sliced_hex_string, a, 64 + a);
-            strncpy(starting_hash, sliced_hex_string, SHA512_STRING_HASH_SIZE);
+    int hash_count;
 
-            for (int b = 0; b  < ITERATIONS; b ++){
-                EVP_DigestInit_ex(mdctx, md, NULL);
-                EVP_DigestUpdate(mdctx, starting_hash, 128);
-                EVP_DigestFinal_ex(mdctx, hash, &len);
-                byte_array_to_hex(hash, hexstr, len);
-                strncpy(starting_hash, hexstr, SHA512_STRING_HASH_SIZE);
-            }
-        }
+    char *hashes_path = get_hash_path();
 
+    char **hashes;
+    char **games;
+
+    hashes = malloc(MAX_HASHES * sizeof(char *));
+    games = malloc(MAX_HASHES * sizeof(char *));
+
+
+    if (hashes == NULL) {
+        printf("Failed to allocate memory for hashes.\n");
+        return 1;
+    }
+    if (games == NULL) {
+        printf("Failed to allocate memory for games.\n");
+        return 1;
     }
 
-    EVP_MD_CTX_free(mdctx);
+    for (int i = 0; i < MAX_HASHES; i++) {
+        hashes[i] = malloc(65 * sizeof(char));
+        memset(hashes[i], '\0', sizeof(char) * 65);
+        if (hashes[i] == NULL) {
+            printf("Failed to allocate memory for hashes[%d].\n", i);
+            exit(1);
+        }
+    }
+
+    for (int i = 0; i < MAX_HASHES; i++) {
+        games[i] = malloc(33 * sizeof(char));
+        memset(games[i], '\0', sizeof(char) * 33);
+        if (games[i] == NULL) {
+            printf("Failed to allocate memory for games[%d].\n", i);
+            exit(1);
+        }
+    }
+
+    hash_count = get_hash(hashes_path, hashes, games);
+
+    for (int q= 0; q < 2; q++){
+        if (q) sprintf(noice_str, "%ld", noice);
+        else sprintf(noice_str, "-%ld", noice);
+        sha512(noice_str, strlen(noice_str), sha512_byte_array);
+        byte_array_to_hex(sha512_byte_array, sha512_hex_string, SHA512_HASH_SIZE);
+        for (int w = 0; w < 2; w++) {
+            if (w) reverse(sha512_hex_string, SHA512_STRING_HASH_SIZE -1);
+            for (int e = 0; e < 65; e++){
+                slice(sha512_hex_string, sliced_hex_string, e, 64 + e);
+                strcpy(starting_hash, sliced_hex_string);
+                for (int r = 0; r < ITERATIONS; r++){
+                    EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL);
+                    EVP_DigestUpdate(mdctx, starting_hash, 64);
+                    EVP_DigestFinal_ex(mdctx, hash, &hash_len);
+                    byte_array_to_hex(hash, starting_hash, SHA256_HASH_SIZE);
+                    if (compare(sliced_hex_string, starting_hash, (const char **) hashes, hash_count) == 0) {
+                        printf("Found hash: %s\n", sliced_hex_string);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+    EVP_MD_CTX_destroy(mdctx);
+    OPENSSL_cleanup();
+    for (int i = 0; i < MAX_HASHES; i++)
+        if (hashes[i] != NULL) {
+            free(hashes[i]);
+            hashes[i] = NULL;
+        }
+    free(hashes);
+    hashes = NULL;
+
+    for (int i = 0; i < MAX_HASHES; i++)
+        if (games[i] != NULL) {
+            free(games[i]);
+            games[i] = NULL;
+        }
+    free(games);
+    games = NULL;
+
+
     return 0;
+
 
 }

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "helper.h"
 
 
 static const char hex_lookup[] = "0123456789abcdef";
@@ -61,4 +62,59 @@ char* get_home_dir() {
     }
 
     return home_dir;
+}
+
+char* get_app_dir() {
+    char* home_dir = get_home_dir();
+    if (home_dir == NULL) {
+        return NULL;
+    }
+
+    char* app_dir = malloc(strlen(home_dir) + strlen("/.HO2") + 1);
+    if (app_dir == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for app_dir.\n");
+        return NULL;
+    }
+
+    strcpy(app_dir, home_dir);
+    strcat(app_dir, "/.HO2");
+
+    return app_dir;
+}
+
+char *get_hash_path() {
+    char *app_dir = get_app_dir();
+    if (app_dir == NULL) {
+        return NULL;
+    }
+
+    char *hash_path = malloc(strlen(app_dir) + strlen("/.hash/hash.csv") + 1);
+    if (hash_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for hash_path.\n");
+        return NULL;
+    }
+
+    strcpy(hash_path, app_dir);
+    strcat(hash_path, "/.hash/hash.csv");
+
+    return hash_path;
+}
+
+char *get_passed_hash_dir_path() {
+    char *app_dir = get_app_dir();
+    create_passed_hash_dir();
+    if (app_dir == NULL) {
+        return NULL;
+    }
+
+    char *passed_hash_dir_path = malloc(strlen(app_dir) + strlen("/.passed_hash") + 1);
+    if (passed_hash_dir_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for passed_hash_dir_path.\n");
+        return NULL;
+    }
+
+    strcpy(passed_hash_dir_path, app_dir);
+    strcat(passed_hash_dir_path, "/.passed_hash");
+
+    return passed_hash_dir_path;
 }

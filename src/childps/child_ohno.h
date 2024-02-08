@@ -15,7 +15,7 @@
     #include <openssl/evp.h>
 #endif
 
-#define ITERATIONS 1000000
+#define ITERATIONS 10
 
 void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, unsigned char *hash) {
     sha2_starts(ctx, 0); // 0 for SHA-256, 1 for SHA-224
@@ -35,16 +35,16 @@ void hash_to_hex(unsigned char *hash, char *hexstr, unsigned int len) {
     }
 }
 
-void compare(char* hexstr, char **hashes, int hashes_len){
-    int bool;
+int compare(char* parent_string,char* hexstr,const char **hashes, int hashes_len){
     for (int i = 0; i < hashes_len; i++){
-        bool = strcmp(hexstr, hashes[i]);
-        if (bool != 0) continue;
+        if (strcmp(hexstr, hashes[i]) != 0) continue;
         else {
-            handle_passed_hash(hexstr, "child_ohno");
-            return;
+            printf("Found match for %s: %s\n", parent_string, hexstr);
+            handle_passed_hash(parent_string, "child_ohno", i);
+            return 0;
         }
     }
+    return -1;
 }
 
 

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <curl/curl.h>
 #include <errno.h>
+#include "helper.h"
 
 #ifdef _WIN32
     #include <direct.h>
@@ -20,7 +21,7 @@ int check_internet_connection() {
     CURLcode res;
     curl = curl_easy_init();
     if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, "http://www.google.com");
+        curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com");
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
         res = curl_easy_perform(curl);
         /* Check for errors */
@@ -41,8 +42,7 @@ void download_hashset(char *path) {
     CURL *curl;
     FILE *fp;
     int result;
-    char *filename = "hash.csv";
-    char fullpath[512];
+    char temp_path[256]; // buffer for temporary file path
 
     if (!check_internet_connection()) {
         fprintf(stderr, "No internet connection\n");
@@ -52,17 +52,16 @@ void download_hashset(char *path) {
     struct stat st = {0};
     if (stat(path, &st) == -1) {
         // If the directory does not exist, create it
-        if (mkdir(path, 0700) == -1) {
+        if (create_hash_dir() == -1) {
             perror("Error creating directory");
             return;
         }
     }
 
-    snprintf(fullpath, sizeof(fullpath), "%s/%s", path, filename); // concatenate path and filename
-
     curl = curl_easy_init();
     if (curl) {
-        fp = fopen(fullpath,"wb");
+        snprintf(temp_path, sizeof(temp_path), "%s.temp", path); // create temporary file path
+        fp = fopen(temp_path,"wb");
         if(fp == NULL) {
             fprintf(stderr, "Error opening file: %s\n", strerror(errno));
             return;
@@ -75,14 +74,19 @@ void download_hashset(char *path) {
         if(result != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(result));
             curl_easy_cleanup(curl);
-            if(fp) {
-                fclose(fp);
-                remove(fullpath); // remove the file if download failed
-            }
+            fclose(fp);
+            remove(temp_path); // remove the temporary file if download failed
+
             return;
         }
 
         curl_easy_cleanup(curl);
         fclose(fp);
+
+        // If download was successful, rename the temporary file to the original file name
+        if (rename(temp_path, path) != 0) {
+            fprintf(stderr, "Error renaming file: %s\n", strerror(errno));
+            return;
+        }
     }
 }

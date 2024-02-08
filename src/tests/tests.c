@@ -9,23 +9,16 @@ int main(){
     printf("Home: %s\n", home);
 
     printf("Testing for download_hashset\n");
-    char appdir[] = ".ho2";
-    char *path = malloc(512);
-    if (path == NULL){
-        printf("failed to allocate memory\n");
-        exit(EXIT_FAILURE);
-    }
-    sprintf(path, "%s/%s", home, appdir);
-    download_hashset("down");
+    char *path = get_hash_path();
+    printf("Path: %s\n", path);
 
-    sprintf(path, "%s/%s", path, "hash.csv");
-    if (file_exists("down/hash.csv")){
-        printf("Download file test passed\n");
+    download_hashset(path);
+    if (file_exists(path)){
+        printf("File exists\n");
     } else {
-        printf("Download file test failed\n");
+        printf("File does not exist\n");
     }
 
-    free(path);
     return 0;
 
 }

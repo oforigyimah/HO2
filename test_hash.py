@@ -8,6 +8,6 @@ if len(sys.argv) != 2:
 
 h = sys.argv[1]
 
-for i in range(50):
+for i in range(10):
     h = hashlib.sha256(h.encode()).hexdigest()
     print(h)

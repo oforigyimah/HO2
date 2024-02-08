@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <libgen.h>
+#include "helper.h"
 
 #ifdef _WIN32
     #include <direct.h>
@@ -10,11 +12,15 @@
     #define stat _stat
     #define access _access
     struct _stat st;
+    #define PATH_SEPARATOR '\\'
+
 #else
     #include <sys/stat.h>
     #include <unistd.h>
     struct stat st;
+    #define PATH_SEPARATOR '/'
 #endif
+
 
 #define MAX_HASHES 30
 
@@ -68,7 +74,7 @@ int get_hash(char *filepath, char *hashes[MAX_HASHES], char *games[MAX_HASHES]){
 }
 
 
-int handle_passed_hash(char *passed_hash, char *path){
+int handle_passed_hash(char *passed_hash,char *hash_str ,char *path, int index){
     // Check if the directory exists
     if (stat(path, &st) == -1) {
         // If the directory does not exist, create it
@@ -83,9 +89,8 @@ int handle_passed_hash(char *passed_hash, char *path){
     sprintf(filename, "%s/%ld", path, now);
     FILE *fp = fopen(filename, "w");
     if (fp != NULL) {
-        fprintf(fp, "%s", passed_hash);
+        fprintf(fp, "%s\t%s\t%d", passed_hash, hash_str, index);
         fclose(fp);
-        memset(passed_hash, 0, sizeof(char) * 65);
         printf("passed_hash: %s\n", passed_hash);
         return 0;
     }
@@ -101,4 +106,57 @@ int file_exists(const char *filepath) {
         return 0;
     }
 }
+
+int create_app_dir(){
+    char *homeDir = get_home_dir();
+
+    char *appDir = get_app_dir();
+
+    if (stat(appDir, &st) == -1)
+        if (mkdir(appDir, 0700) == -1) {
+            perror("create app dir failed");
+            return -1;
+        }
+        return 0;
+}
+
+int create_hash_dir(){
+    char *appDir = get_app_dir();
+    if (stat(appDir, &st) == -1){
+        if (create_app_dir() == -1){
+            perror("create app dir failed");
+            return -1;
+        }
+    }
+    char hashDir[256];
+    sprintf(hashDir, "%s/%s",appDir, ".hash");
+
+    if (stat(hashDir, &st) == -1)
+        if (mkdir(hashDir, 0700) == -1) {
+            perror("create hash dir failed");
+            return -1;
+        }
+        return 0;
+}
+int create_passed_hash_dir(){
+    char *appDir = get_app_dir();
+    if (stat(appDir, &st) == -1){
+        if (create_app_dir() == -1){
+            perror("create app dir failed");
+            return -1;
+        }
+    }
+    char passedHashDir[256];
+    sprintf(passedHashDir, "%s/%s",appDir, ".passed_hash");
+
+    if (stat(passedHashDir, &st) == -1)
+        if (mkdir(passedHashDir, 0700) == -1) {
+            perror("create passed hash dir failed");
+            return -1;
+        }
+        return 0;
+}
+
+
+
 
