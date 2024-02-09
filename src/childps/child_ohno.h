@@ -17,17 +17,7 @@
 
 #define ITERATIONS 2000000
 
-void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, unsigned char *hash) {
-    sha2_starts(ctx, 0); // 0 for SHA-256, 1 for SHA-224
-    sha2_update(ctx, input, length);
-    sha2_finish(ctx, hash);
-}
 
-void openssl_sha256(char *input, size_t length, unsigned char *hash, const EVP_MD *md, EVP_MD_CTX *mdctx, unsigned int *len) {
-    EVP_DigestInit_ex(mdctx, md, NULL);
-    EVP_DigestUpdate(mdctx, input, length);
-    EVP_DigestFinal_ex(mdctx, hash, len);
-}
 
 void hash_to_hex(unsigned char *hash, char *hexstr, unsigned int len) {
     for(unsigned int i = 0; i < len; i++) {
