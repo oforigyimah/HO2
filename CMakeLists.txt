@@ -39,6 +39,8 @@ set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_
 add_subdirectory(external/polarssl)
 add_subdirectory(external/hash)
 
+find_package(CURL REQUIRED)
+
 if(WIN32)
     add_definitions(-D_WIN32_WINNT=0x0601)
     set(INCLUDE_DIRS C:\\curl-8.6.0_1-win64-mingw\\include external/polarssl/include external/hash/include C:\\Program Files\\OpenSSL-Win64\\include)

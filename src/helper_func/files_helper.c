@@ -8,12 +8,12 @@
 #ifdef _WIN32
     #include <direct.h>
     #include <io.h>
+    #include <sys/stat.h> // Include this
     #define mkdir(path, mode) _mkdir(path)
     #define stat _stat
     #define access _access
     struct _stat st;
     #define PATH_SEPARATOR '\\'
-
 #else
     #include <sys/stat.h>
     #include <unistd.h>

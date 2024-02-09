@@ -6,6 +6,7 @@
 
 #ifdef _WIN32
     #include <direct.h>
+     #include <sys/stat.h>
     #define mkdir(path, mode) _mkdir(path)
     #define stat _stat
 #else
