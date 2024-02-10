@@ -5,6 +5,11 @@
 #include "helper.h"
 
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+
 static const char hex_lookup[] = "0123456789abcdef";
 
 void hex_to_byte_array(const char* hex_string, uint8_t* byte_array, int hex_string_length) {
@@ -118,3 +123,63 @@ char *get_passed_hash_dir_path() {
 
     return passed_hash_dir_path;
 }
+
+
+
+#ifdef _WIN32
+
+cpu_info get_cpu_info() {
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+
+    DWORD BufSize = sizeof(DWORD);
+    DWORD dwMHz = 0;
+    HKEY hKey;
+    // open the key where the proc speed is hidden:
+    long lError = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                                "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+                                0,
+                                KEY_READ,
+                                &hKey);
+    if(lError == ERROR_SUCCESS){
+        // query the key:
+        RegQueryValueEx(hKey, "~MHz", NULL, NULL, (LPBYTE) &dwMHz, &BufSize);
+    }
+
+    cpu_info info;
+    info.model = "Unknown"; // Windows does not provide a direct API to get the CPU model
+    info.cores = sysinfo.dwNumberOfProcessors;
+    info.speed = (double)dwMHz;
+
+    return info;
+}
+
+#else
+
+cpu_info get_cpu_info() {
+    FILE* fp;
+    char buffer[128];
+    cpu_info info;
+    info.model = malloc(128);
+
+    fp = popen("/usr/bin/lscpu | grep 'Model name:'", "r");
+    fgets(buffer, sizeof(buffer), fp);
+    slice(buffer, info.model, 12, strlen(buffer) - 1);
+    pclose(fp);
+
+    fp = popen("/usr/bin/lscpu | grep 'CPU(s):'", "r");
+    fgets(buffer, sizeof(buffer), fp);
+    slice(buffer, buffer, 7, strlen(buffer) - 1);
+    info.cores = atoi(buffer);
+    pclose(fp);
+
+    fp = popen("/usr/bin/lscpu | grep 'CPU max MHz:'", "r");
+    fgets(buffer, sizeof(buffer), fp);
+    slice(buffer, buffer, 13, strlen(buffer) - 1);
+    info.speed = atof(buffer);
+    pclose(fp);
+
+    return info;
+}
+
+#endif

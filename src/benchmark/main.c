@@ -2,16 +2,10 @@
 #include <string.h>
 #include <time.h>
 #include <openssl/evp.h>
-#include "../../external/polarssl/include/polarssl/sha2.h"
 #include "../../external/hash/include/hash.h"
 
 #define ITERATIONS 100000000
 
-void polarssl_sha256(sha2_context *ctx, unsigned char *input, size_t length, unsigned char *hash) {
-    sha2_starts(ctx, 0); // 0 for SHA-256, 1 for SHA-224
-    sha2_update(ctx, input, length);
-    sha2_finish(ctx, hash);
-}
 
 void openssl_sha256(unsigned char *input, size_t length, unsigned char *hash, const EVP_MD *md, EVP_MD_CTX *mdctx, unsigned int len) {
     mdctx = EVP_MD_CTX_new();
@@ -31,16 +25,12 @@ int main() {
     unsigned char hash[EVP_MAX_MD_SIZE];
     char hexstr[(EVP_MAX_MD_SIZE * 2) + 1];
     char *input = "Hello, World! my name is sha2!";
-    sha2_context ctx;
     clock_t start, end;
     double cpu_time_used;
     unsigned int len;
 
     start = clock();
     for(int j = 0; j < ITERATIONS; j++) {
-        sha2_starts(&ctx, 0); // 0 for SHA-256, 1 for SHA-224
-        sha2_update(&ctx, (unsigned char *)input, strlen(input));
-        sha2_finish(&ctx, hash);
 
 
     }
@@ -50,7 +40,6 @@ int main() {
 
     start = clock();
     for(int j = 0; j < ITERATIONS; j++) {
-        polarssl_sha256(&ctx, (unsigned char *)input, strlen(input), hash);
     }
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;

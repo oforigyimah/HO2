@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
     #include <windows.h>
-    #include <x86intrin.h>
+    #include <intrin.h>
     #include <process.h>
 #else
     #include <unistd.h>

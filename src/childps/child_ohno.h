@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "../../external/polarssl/include/polarssl/sha2.h"
 #include "../helper_func/helper.h"
 
 #ifdef _WIN32

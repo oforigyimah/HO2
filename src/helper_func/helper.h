@@ -12,6 +12,12 @@
 
 #define MAX_HASHES 30
 
+typedef struct {
+    char *model;
+    int cores;
+    double speed;
+} cpu_info;
+
 // Function prototypes of files_helper.c
 long unsigned int get_noice(char *filepath);
 void update_noice(char *filepath, int num);
@@ -31,6 +37,7 @@ char* get_home_dir();
 char* get_app_dir();
 char *get_hash_path();
 char *get_passed_hash_dir_path();
+cpu_info get_cpu_info();
 
 // Function prototypes of sys_mam_helper.c
 void spawn_process(char* program, char** args, pid_t* pid);
