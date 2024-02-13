@@ -11,6 +11,8 @@ int main(int argc, char *argv[]){
         printf("Usage: %s <noice>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+
+
     long unsigned int noice = strtoul(argv[1], NULL, 10);
     char noice_str[512];
 
@@ -78,6 +80,7 @@ int main(int argc, char *argv[]){
                     EVP_DigestFinal_ex(mdctx, hash, &hash_len);
                     byte_array_to_hex(hash, starting_hash, SHA256_HASH_SIZE);
                     if (compare(sliced_hex_string, starting_hash, (const char **) hashes, hash_count) == 0) {
+                        printf("\n\n\n\n\n\nFound match for %s: %s\n", sliced_hex_string, starting_hash);
                         break;
                     }
                 }
@@ -104,7 +107,7 @@ int main(int argc, char *argv[]){
     free(games);
     games = NULL;
 
-
+    printf("Noice: %ld has finished\n", noice);
     return 0;
 
 

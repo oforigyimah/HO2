@@ -75,6 +75,16 @@ char* get_app_dir() {
         return NULL;
     }
 
+#ifdef _WIN32
+    char* app_dir = malloc(strlen(home_dir) + strlen("\\.HO2") + 1);
+    if (app_dir == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for app_dir.\n");
+        return NULL;
+    }
+
+    strcpy(app_dir, home_dir);
+    strcat(app_dir, "\\.HO2");
+#else
     char* app_dir = malloc(strlen(home_dir) + strlen("/.HO2") + 1);
     if (app_dir == NULL) {
         fprintf(stderr, "Error: Could not allocate memory for app_dir.\n");
@@ -83,6 +93,7 @@ char* get_app_dir() {
 
     strcpy(app_dir, home_dir);
     strcat(app_dir, "/.HO2");
+#endif
 
     return app_dir;
 }
@@ -93,6 +104,16 @@ char *get_hash_path() {
         return NULL;
     }
 
+#ifdef _WIN32
+    char *hash_path = malloc(strlen(app_dir) + strlen("\\.hash\\hash.csv") + 1);
+    if (hash_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for hash_path.\n");
+        return NULL;
+    }
+
+    strcpy(hash_path, app_dir);
+    strcat(hash_path, "\\.hash\\hash.csv");
+#else
     char *hash_path = malloc(strlen(app_dir) + strlen("/.hash/hash.csv") + 1);
     if (hash_path == NULL) {
         fprintf(stderr, "Error: Could not allocate memory for hash_path.\n");
@@ -101,10 +122,10 @@ char *get_hash_path() {
 
     strcpy(hash_path, app_dir);
     strcat(hash_path, "/.hash/hash.csv");
+#endif
 
     return hash_path;
 }
-
 char *get_passed_hash_dir_path() {
     char *app_dir = get_app_dir();
     create_passed_hash_dir();
@@ -112,6 +133,16 @@ char *get_passed_hash_dir_path() {
         return NULL;
     }
 
+#ifdef _WIN32
+    char *passed_hash_dir_path = malloc(strlen(app_dir) + strlen("\\.passed_hash") + 1);
+    if (passed_hash_dir_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for passed_hash_dir_path.\n");
+        return NULL;
+    }
+
+    strcpy(passed_hash_dir_path, app_dir);
+    strcat(passed_hash_dir_path, "\\.passed_hash");
+#else
     char *passed_hash_dir_path = malloc(strlen(app_dir) + strlen("/.passed_hash") + 1);
     if (passed_hash_dir_path == NULL) {
         fprintf(stderr, "Error: Could not allocate memory for passed_hash_dir_path.\n");
@@ -120,17 +151,17 @@ char *get_passed_hash_dir_path() {
 
     strcpy(passed_hash_dir_path, app_dir);
     strcat(passed_hash_dir_path, "/.passed_hash");
+#endif
 
     return passed_hash_dir_path;
 }
 
 
-
 #ifdef _WIN32
 
 cpu_info get_cpu_info() {
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
+    SYSTEM_INFO systemInfo;
+    GetSystemInfo(&systemInfo);
 
     DWORD BufSize = sizeof(DWORD);
     DWORD dwMHz = 0;
@@ -146,10 +177,19 @@ cpu_info get_cpu_info() {
         RegQueryValueEx(hKey, "~MHz", NULL, NULL, (LPBYTE) &dwMHz, &BufSize);
     }
 
+    // Get the CPU name
+    char ProcessorNameString[128];
+    DWORD size = sizeof(ProcessorNameString);
+    if (RegQueryValueEx(hKey, "ProcessorNameString", NULL, NULL, (LPBYTE)&ProcessorNameString, &size) == ERROR_SUCCESS) {
+        printf("Processor Name: %s\n", ProcessorNameString);
+    }
+
     cpu_info info;
-    info.model = "Unknown"; // Windows does not provide a direct API to get the CPU model
-    info.cores = sysinfo.dwNumberOfProcessors;
+    info.model = ProcessorNameString; // Set the model to the CPU name
+    info.cores = systemInfo.dwNumberOfProcessors;
     info.speed = (double)dwMHz;
+
+    RegCloseKey(hKey); // Don't forget to close the key when you're done with it
 
     return info;
 }

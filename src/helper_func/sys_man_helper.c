@@ -66,15 +66,22 @@ void spawn_process(char* program, char** args, pid_t* pid) {
 #ifdef _WIN32
     // Windows-specific code
     *pid = _spawnv(_P_NOWAIT, program, (const char *const *) args);
+    if (*pid == -1) {
+        perror("Error spawning process");
+    }
 #else
     // Linux-specific code
     *pid = fork();
-    if (*pid == 0) {
-        execvp(program, args);
+    if (*pid == -1) {
+        perror("Error forking process");
+    } else if (*pid == 0) {
+        if (execvp(program, args) == -1) {
+            perror("Error executing program");
+            exit(EXIT_FAILURE);
+        }
     }
 #endif
 }
-
 void wait_for_process(pid_t pid, int* status){
 #ifdef _WIN32
     // Windows-specific code

@@ -2,14 +2,15 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <libgen.h>
 #include "helper.h"
 
 #ifdef _WIN32
     #include <direct.h>
     #include <io.h>
     #include <sys/stat.h> // Include this
-    #define mkdir(path, mode) _mkdir(path)
+    #include <dirent.h>
+
+#define mkdir(path, mode) _mkdir(path)
     #define stat _stat
     #define access _access
     struct _stat st;
@@ -92,6 +93,13 @@ int handle_passed_hash(char *passed_hash,char *hash_str ,char *path, int index){
         fprintf(fp, "%s\t%s\t%d", passed_hash, hash_str, index);
         fclose(fp);
         printf("passed_hash: %s\n", passed_hash);
+
+        if(check_internet_connection() == 0){
+            char message[512];
+            sprintf(message, "%s\t%s\t%d", passed_hash, hash_str, index);
+            notify_me(message);
+        }
+
         return 0;
     }
     return 1;
@@ -108,7 +116,6 @@ int file_exists(const char *filepath) {
 }
 
 int create_app_dir(){
-    char *homeDir = get_home_dir();
 
     char *appDir = get_app_dir();
 
@@ -117,7 +124,7 @@ int create_app_dir(){
             perror("create app dir failed");
             return -1;
         }
-        return 0;
+    return 0;
 }
 
 int create_hash_dir(){
@@ -136,7 +143,7 @@ int create_hash_dir(){
             perror("create hash dir failed");
             return -1;
         }
-        return 0;
+    return 0;
 }
 int create_passed_hash_dir(){
     char *appDir = get_app_dir();
@@ -154,8 +161,99 @@ int create_passed_hash_dir(){
             perror("create passed hash dir failed");
             return -1;
         }
-        return 0;
+    return 0;
 }
+
+
+
+int store_file_paths(const char *dir_path, hash_info **head) {
+    struct dirent *entry;
+    DIR *dir = opendir(dir_path);
+    hash_info *current = *head;
+    int index = 0;
+    int file_count = 0; // Add a counter for the number of files
+
+    if (dir == NULL) {
+        printf("Error opening directory '%s'\n", dir_path);
+        return -1;
+    }
+
+    // If the list already exists, traverse to the end
+    if (current != NULL) {
+        while (current->next != NULL) {
+            current = current->next;
+            index++;
+        }
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        struct stat path_stat;
+        char full_path[1024];
+        sprintf(full_path, "%s%c%s", dir_path, PATH_SEPARATOR, entry->d_name);
+        stat(full_path, &path_stat);
+        if (S_ISREG(path_stat.st_mode)) { // Check if the entry is a regular file
+            hash_info *new_node = (hash_info*)malloc(sizeof(hash_info));
+            new_node->path = (char*)malloc(strlen(full_path) + 1);
+            strcpy(new_node->path, full_path);
+            new_node->next = NULL;
+            new_node->index = index++;
+
+            if (current == NULL) {
+                *head = new_node;
+                current = *head;
+            } else {
+                current->next = new_node;
+                current = new_node;
+            }
+            file_count++; // Increment the counter when a file is found
+        }
+    }
+
+    closedir(dir);
+
+    if (file_count == 0) {
+        return -1; // Return -1 if no files were found
+    }
+
+    return 0; // Return 0 if files were found
+}
+
+
+void retrieve_elements(const char* path, char** passed_hash, char** hash, char** game) {
+    FILE* file = fopen(path, "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    char line[256];
+    if (fgets(line, sizeof(line), file) != NULL) {
+        char* token = strtok(line, "\t");
+        if (token != NULL) {
+            *passed_hash = strdup(token);
+            token = strtok(NULL, "\t");
+        }
+        if (token != NULL) {
+            *hash = strdup(token);
+            token = strtok(NULL, "\t");
+        }
+        if (token != NULL) {
+            *game = strdup(token);
+        }
+    }
+
+    fclose(file);
+}
+
+void init (){
+    create_app_dir();
+    create_passed_hash_dir();
+    create_hash_dir();
+    if (check_internet_connection() == 1)
+    download_hashset(get_hash_path());
+
+}
+
 
 
 
