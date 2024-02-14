@@ -93,3 +93,11 @@ void wait_for_process(pid_t pid, int* status){
     waitpid(pid, status, 0);
 #endif
 }
+
+void clear_terminal() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}

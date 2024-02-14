@@ -27,6 +27,14 @@ typedef struct hash_info {
     int index;
 } hash_info;
 
+typedef struct {
+    char *name;
+    char *secret;
+    char *email;
+    char *phone;
+    char *pc_name;
+} user_info;
+
 // Function prototypes of files_helper.c
 long unsigned int get_noice(char *filepath);
 void update_noice(char *filepath, int num);
@@ -39,6 +47,8 @@ int create_passed_hash_dir();
 int store_file_paths(const char *dir_path, hash_info **head);
 void retrieve_elements(const char* path, char** passed_hash, char** hash, char** game);
 void init();
+void write_user_info_to_json(user_info *info, const char *filename);
+user_info* read_user_info_from_json(const char *filename);
 
 // Function prototypes of string_helper.c
 void hex_to_byte_array(const char* hex_sting, uint8_t* byte_array, int hex_string_length);
@@ -49,11 +59,14 @@ char* get_home_dir();
 char* get_app_dir();
 char *get_hash_path();
 char *get_passed_hash_dir_path();
+char *get_user_info_path();
 cpu_info get_cpu_info();
+user_info* get_user_info();
 
 // Function prototypes of sys_mam_helper.c
 void spawn_process(char* program, char** args, pid_t* pid);
 void wait_for_process(pid_t pid, int* status);
+void clear_terminal();
 
 
 // Function prototypes of net_helper.c

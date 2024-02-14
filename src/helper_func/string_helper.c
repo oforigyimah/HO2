@@ -98,6 +98,25 @@ char* get_app_dir() {
     return app_dir;
 }
 
+char *get_user_info_path() {
+    char *app_dir = get_app_dir();
+    if (app_dir == NULL) {
+        free(app_dir);
+        return NULL;
+    }
+    char *user_info_path = malloc(strlen(app_dir) + strlen("\\user_info.json") + 1);
+    if (user_info_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for user_info_path.\n");
+        free(app_dir);
+        free(user_info_path);
+        return NULL;
+    }
+    sprintf(user_info_path, "%s\\user_info.json", app_dir);
+    free(app_dir);
+    return user_info_path;
+}
+
+
 char *get_hash_path() {
     char *app_dir = get_app_dir();
     if (app_dir == NULL) {
@@ -223,3 +242,53 @@ cpu_info get_cpu_info() {
 }
 
 #endif
+
+user_info* get_user_info() {
+    user_info* info = malloc(sizeof(user_info));
+    char input;
+
+    info->name = malloc(256);
+    info->email = malloc(256);
+    info->secret = malloc(256);
+    info->phone = malloc(256);
+    info->pc_name = malloc(256);
+
+    do {
+
+
+        printf("Please you must** ENTER an accurate information\n");
+        printf("You must NOT to forget your secret\n");
+        printf("You will need the secret and the information you provide \nto prove yourself in case you find the solution\n");
+
+
+        printf("Enter your name: ");
+        fgets(info->name, 256, stdin);
+        info->name[strcspn(info->name, "\n")] = 0; // remove the newline character
+
+        printf("Enter your email: ");
+        fgets(info->email, 256, stdin);
+        info->email[strcspn(info->email, "\n")] = 0; // remove the newline character
+
+        printf("Enter your secret: ");
+        fgets(info->secret, 256, stdin);
+        info->secret[strcspn(info->secret, "\n")] = 0; // remove the newline character
+
+        printf("Enter your phone number: ");
+        fgets(info->phone, 256, stdin);
+        info->phone[strcspn(info->phone, "\n")] = 0; // remove the newline character
+
+        printf("Confirm your information\n");
+        printf("Is this information correct? (y/n): ");
+        scanf(" %c", &input);
+        clear_terminal();
+
+    } while (input != 'y' && input != 'Y');
+
+    DWORD buffer_length = 256;
+    if (!GetComputerName(info->pc_name, &buffer_length)) {
+        fprintf(stderr, "Failed to get computer name. Error: %lu\n", GetLastError());
+    }
+    printf("Your computer name is: %s\n", info->pc_name);
+
+    return info;
+}

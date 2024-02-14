@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <jansson.h>
 #include "helper.h"
 
 #ifdef _WIN32
@@ -108,10 +109,10 @@ int handle_passed_hash(char *passed_hash,char *hash_str ,char *path, int index){
 int file_exists(const char *filepath) {
     if (access(filepath, 0) != -1) {
         // file exists
-        return 1;
+        return 0;
     } else {
         // file doesn't exist
-        return 0;
+        return -1;
     }
 }
 
@@ -246,15 +247,51 @@ void retrieve_elements(const char* path, char** passed_hash, char** hash, char**
 }
 
 void init (){
+    if (file_exists(get_hash_path()) == 0)
+        return;
     create_app_dir();
     create_passed_hash_dir();
     create_hash_dir();
     if (check_internet_connection() == 1)
     download_hashset(get_hash_path());
+    else {
+        printf("Please check your internet connection\n");
+        printf("You will need an internet connection to download the hashset\n");
+        printf("This program will not work without the hashset\n");
+        printf("Exiting... check your internet connection and rerun the program\n");
+        exit(EXIT_FAILURE);
+    }
 
 }
 
+void write_user_info_to_json(user_info *info, const char *filename) {
+    json_t *root = json_object();
+    json_object_set_new(root, "name", json_string(info->name));
+    json_object_set_new(root, "secret", json_string(info->secret));
+    json_object_set_new(root, "email", json_string(info->email));
+    json_object_set_new(root, "phone", json_string(info->phone));
+    json_object_set_new(root, "pc_name", json_string(info->pc_name));
 
+    json_dump_file(root, filename, JSON_INDENT(4));
+    json_decref(root);
+}
 
+user_info* read_user_info_from_json(const char *filename) {
+    json_error_t error;
+    json_t *root = json_load_file(filename, 0, &error);
+    if (!root) {
+        fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
+        return NULL;
+    }
 
+    user_info *info = malloc(sizeof(user_info));
+    info->name = strdup(json_string_value(json_object_get(root, "name")));
+    info->secret = strdup(json_string_value(json_object_get(root, "secret")));
+    info->email = strdup(json_string_value(json_object_get(root, "email")));
+    info->phone = strdup(json_string_value(json_object_get(root, "phone")));
+    info->pc_name = strdup(json_string_value(json_object_get(root, "pc_name")));
+
+    json_decref(root);
+    return info;
+}
 

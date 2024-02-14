@@ -1,16 +1,19 @@
 #include "helper_func/helper.h"
 #include <stdio.h>
 
-#define PRINT_LINE(TITLE) printf("\n\n************************************ %s ************************************\n\n", TITLE)
+#define PRINT_LINE(TITLE) printf("\n\n*************************** %s ******************************\n\n", TITLE)
 
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err34-c"
 int main(){
-//    init();
+
+    printf("Home dir is %s\n", get_app_dir());
+
+    init();
     PRINT_LINE("Welcome");
     char *welcome = "Welcome to the main function";
-    char *notice = "This is the main function";
+    char *notice = "This program needs hashset to work properly.\nPlease make sure that you update the hashset at least\nonce a day";
     char c;
     int cores_to_use;
     hash_info *h_info = NULL;
@@ -18,6 +21,16 @@ int main(){
 
     printf("%s\n", welcome);
     printf("%s\n", notice);
+
+    user_info *user = get_user_info();
+
+    printf("User Info\n");
+    printf("Name: %s\n", user->name);
+    printf("Secret: %s\n", user->secret);
+    printf("Email: %s\n", user->email);
+    printf("Phone: %s\n", user->phone);
+    printf("PC Name: %s\n", user->pc_name);
+
 
 
     PRINT_LINE("CPU Info");
