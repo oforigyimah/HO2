@@ -3,12 +3,22 @@
 
 #define PRINT_LINE(TITLE) printf("\n\n*************************** %s ******************************\n\n", TITLE)
 
+void print_user_info(){
+
+    user_info *user = read_user_info_from_json(get_user_info_path());
+
+    printf("User Info\n");
+    printf("Name: %s\n", user->name);
+    printf("Secret: %s\n", user->secret);
+    printf("Email: %s\n", user->email);
+    printf("Phone: %s\n", user->phone);
+    printf("PC Name: %s\n", user->pc_name);
+}
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err34-c"
 int main(){
 
-    printf("Home dir is %s\n", get_app_dir());
 
     init();
     PRINT_LINE("Welcome");
@@ -22,16 +32,7 @@ int main(){
     printf("%s\n", welcome);
     printf("%s\n", notice);
 
-    user_info *user = get_user_info();
-
-    printf("User Info\n");
-    printf("Name: %s\n", user->name);
-    printf("Secret: %s\n", user->secret);
-    printf("Email: %s\n", user->email);
-    printf("Phone: %s\n", user->phone);
-    printf("PC Name: %s\n", user->pc_name);
-
-
+    init();
 
     PRINT_LINE("CPU Info");
     cpu_info cpu = get_cpu_info();
@@ -65,16 +66,21 @@ int main(){
 do {
     printf("Enter the number of cpu cores to use ==>  ");
     result = scanf("%d%*c", &cores_to_use);
+    printf("\n");
+    printf("You are using %d cores of your total %d cores\n", cores_to_use, cpu.cores);
     printf("Press Enter to continue: ");
     while(getchar() != '\n'); // This line consumes the newline character
     if(result != 1) {
         printf("Invalid input, must be integer\n");
     }
 } while(result != 1);
+    clear_terminal();
 
-    printf("\n");
-    printf("You are using %d cores of your total %d cores\n", cores_to_use, cpu.cores);
-
+    if (cores_to_use > cpu.cores){
+        cores_to_use = cpu.cores;
+        printf("Since the number of you want to use is greater than the available cores,");
+        printf("for safety of your hardware the program will be using %d cores\n", cpu.cores);
+    }
 
     pid_t pid_s[cores_to_use];
     int statuses[cores_to_use];
@@ -86,6 +92,7 @@ do {
 
         ret = store_file_paths(get_passed_hash_dir_path(), &h_info);
         if (ret != -1){
+            printf("----------------------------------------");
             hash_info *head = h_info;
             while (h_info != NULL){
                 retrieve_elements(h_info->path, &h_info->passed_hash, &h_info->hash, &h_info->game);
@@ -123,7 +130,8 @@ do {
             wait_for_process(pid_s[i], &statuses[i]);
             if (statuses[i] == 0) noice++;
         }
-        if (noice == 100000) break;
+        update_noice(get_noice_path(), cores_to_use);
+        clear_terminal();
     }
 
 

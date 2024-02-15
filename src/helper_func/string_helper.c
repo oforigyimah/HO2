@@ -145,6 +145,25 @@ char *get_hash_path() {
 
     return hash_path;
 }
+
+char *get_noice_path() {
+    char *app_dir = get_app_dir();
+    if (app_dir == NULL) {
+        free(app_dir);
+        return NULL;
+    }
+    char *noice_path = malloc(strlen(app_dir) + strlen("\\noice.txt") + 1);
+    if (noice_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for noice_path.\n");
+        free(app_dir);
+        free(noice_path);
+        return NULL;
+    }
+    sprintf(noice_path, "%s\\noice.txt", app_dir);
+    free(app_dir);
+    return noice_path;
+}
+
 char *get_passed_hash_dir_path() {
     char *app_dir = get_app_dir();
     create_passed_hash_dir();
@@ -288,7 +307,5 @@ user_info* get_user_info() {
     if (!GetComputerName(info->pc_name, &buffer_length)) {
         fprintf(stderr, "Failed to get computer name. Error: %lu\n", GetLastError());
     }
-    printf("Your computer name is: %s\n", info->pc_name);
-
     return info;
 }

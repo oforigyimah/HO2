@@ -154,11 +154,15 @@ int notify_me(char* message) {
     return -1;
 }
 
-int request_noice(){
+int request_noice(char *filename) {
+    user_info *info = read_user_info_from_json(get_user_info_path());
     printf("Requesting noice\n");
+    printf("Sending request to %s\n", filename);
+    return 0;
 }
 
 int send_passes_hash_database(hash_info *passed_hash){
+    user_info *info = read_user_info_from_json(get_user_info_path());
     hash_info *head = passed_hash;
     while (passed_hash != NULL){
         printf("i will it here\n");

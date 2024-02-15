@@ -27,6 +27,19 @@
 #define MAX_HASHES 30
 
 long unsigned int get_noice(char *filepath){
+    if (file_exists(filepath) == -1){
+        if (check_internet_connection() == 1){
+            if (request_noice(get_noice_path()) == -1) {
+                perror("Error requesting noice");
+                perror("Exiting... try again later");
+                exit(EXIT_FAILURE);
+            }
+        } else {
+            perror("Please check your internet connection\n");
+            perror("Exiting... check your internet connection and rerun the program\n");
+            exit(EXIT_FAILURE);
+        }
+    }
     FILE *fp;
     long unsigned int noice = -1;
     fp = fopen(filepath, "r");
@@ -38,6 +51,7 @@ long unsigned int get_noice(char *filepath){
 }
 
 void update_noice(char *filepath, int num){
+    return;
     long unsigned int prev_noice = get_noice(filepath);
     if(prev_noice != -1){
         FILE *fp;
@@ -78,6 +92,7 @@ int get_hash(char *filepath, char *hashes[MAX_HASHES], char *games[MAX_HASHES]){
 
 int handle_passed_hash(char *passed_hash,char *hash_str ,char *path, int index){
     // Check if the directory exists
+    printf("+++++++++++++++++++++++++++++++++++++++++++++++");
     if (stat(path, &st) == -1) {
         // If the directory does not exist, create it
         if (mkdir(path, 0700) == -1) {
@@ -249,11 +264,21 @@ void retrieve_elements(const char* path, char** passed_hash, char** hash, char**
 void init (){
     if (file_exists(get_hash_path()) == 0)
         return;
+    if (file_exists(get_user_info_path()) == 0)
+        return;
     create_app_dir();
     create_passed_hash_dir();
     create_hash_dir();
-    if (check_internet_connection() == 1)
-    download_hashset(get_hash_path());
+    user_info *info = get_user_info();
+    write_user_info_to_json(info, get_user_info_path());
+    if (check_internet_connection() == 1){
+        download_hashset(get_hash_path());
+        if (request_noice(get_noice_path()) == -1){
+            perror("Error requesting noice");
+            perror("Exiting... try again later");
+            exit(EXIT_FAILURE);
+        }
+    }
     else {
         printf("Please check your internet connection\n");
         printf("You will need an internet connection to download the hashset\n");
@@ -261,7 +286,6 @@ void init (){
         printf("Exiting... check your internet connection and rerun the program\n");
         exit(EXIT_FAILURE);
     }
-
 }
 
 void write_user_info_to_json(user_info *info, const char *filename) {
@@ -273,6 +297,7 @@ void write_user_info_to_json(user_info *info, const char *filename) {
     json_object_set_new(root, "pc_name", json_string(info->pc_name));
 
     json_dump_file(root, filename, JSON_INDENT(4));
+    printf("User info written to %s\n", filename);
     json_decref(root);
 }
 

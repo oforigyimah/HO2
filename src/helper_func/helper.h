@@ -60,6 +60,7 @@ char* get_app_dir();
 char *get_hash_path();
 char *get_passed_hash_dir_path();
 char *get_user_info_path();
+char *get_noice_path();
 cpu_info get_cpu_info();
 user_info* get_user_info();
 
@@ -73,7 +74,7 @@ void clear_terminal();
 int check_internet_connection();
 void download_hashset(char *path);
 int notify_me(char* message);
-int request_noice();
+int request_noice(char *filename);
 int send_passes_hash_database(hash_info *passed_hash);
 
 #endif // HELPER_H
