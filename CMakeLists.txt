@@ -5,9 +5,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".lib")
 set(BUILD_SHARED_LIBS OFF)
 
-add_compile_options(-fno-pic)
-
-
 if (WIN32)
 #    set(CMAKE_EXE_LINKER_FLAGS "-static")
     add_definitions(-DCURL_STATICLIB)
@@ -57,11 +54,12 @@ else()
     set(LINK_DIRS external/curl/lib  external/hash/lib)
 endif()
 
-set(LINK_LIBS curl hash crypto ssl Jansson)
+
+set(LINK_LIBS curl hash crypto ssl jansson)
 if(WIN32)
     list(APPEND LINK_LIBS Bcrypt.lib)
 endif()
-
+add_compile_options(-fPIE)
 foreach(target HO2 HO2Mark tests ho2_child)
     target_include_directories(${target} PUBLIC ${INCLUDE_DIRS})
     target_link_libraries(${target} PUBLIC ${LINK_LIBS})
@@ -74,29 +72,31 @@ foreach(target HO2 HO2Mark tests ho2_child)
             )
 endforeach()
 
-# Define the patterns to match
-# Define the patterns to match
-set(PATTERNS libcurl libhash libcrypto libssl libJansson libBcrypt)
+if (WIN32)
+    # Define the patterns to match
+    set(PATTERNS libcurl libhash libcrypto libssl libJansson libBcrypt)
 
-# Iterate over each directory
-foreach(DIR ${LINK_DIRS})
-    # Iterate over each pattern
-    foreach(PATTERN ${PATTERNS})
-        # Get a list of all files that match the pattern
-        file(GLOB_RECURSE MATCHING_LIBS "${DIR}/*${PATTERN}*")
+    # Iterate over each directory
+    foreach(DIR ${LINK_DIRS})
+        # Iterate over each pattern
+        foreach(PATTERN ${PATTERNS})
+            # Get a list of all files that match the pattern
+            file(GLOB_RECURSE MATCHING_LIBS "${DIR}/*${PATTERN}*")
 
-        # Check if the list is empty
-        if(NOT MATCHING_LIBS)
-            message("No matching files found for pattern: ${PATTERN} in directory: ${DIR}")
-        else()
-            # Iterate over each matching file
-            foreach(LIB ${MATCHING_LIBS})
-                # Print the file path
-                message("Copying file: ${LIB}")
+            # Check if the list is empty
+            if(NOT MATCHING_LIBS)
+                message("No matching files found for pattern: ${PATTERN} in directory: ${DIR}")
+            else()
+                # Iterate over each matching file
+                foreach(LIB ${MATCHING_LIBS})
+                    # Print the file path
+                    message("Copying file: ${LIB}")
 
-                # Copy the file to the lib directory
-                file(COPY ${LIB} DESTINATION ${CMAKE_BINARY_DIR}/lib)
-            endforeach()
-        endif()
+                    # Copy the file to the lib directory
+                    file(COPY ${LIB} DESTINATION ${CMAKE_BINARY_DIR}/lib)
+                endforeach()
+            endif()
+        endforeach()
     endforeach()
-endforeach()
+
+endif()

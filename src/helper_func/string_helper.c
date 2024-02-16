@@ -7,6 +7,8 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 
@@ -302,10 +304,20 @@ user_info* get_user_info() {
         clear_terminal();
 
     } while (input != 'y' && input != 'Y');
-
+#ifdef _WIN32
     DWORD buffer_length = 256;
     if (!GetComputerName(info->pc_name, &buffer_length)) {
         fprintf(stderr, "Failed to get computer name. Error: %lu\n", GetLastError());
     }
     return info;
+#else
+
+        char buffer[256];
+        if (gethostname(buffer, sizeof(buffer)) == -1) {
+            perror("Failed to get computer name");
+        } else {
+            strncpy(info->pc_name, buffer, sizeof(buffer));
+        }
+        return info;
+#endif
 }

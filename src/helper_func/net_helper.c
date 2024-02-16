@@ -2,6 +2,7 @@
 #include <string.h>
 #include <curl/curl.h>
 #include <jansson.h>
+#include <errno.h>
 #include "helper.h"
 
 #ifdef _WIN32

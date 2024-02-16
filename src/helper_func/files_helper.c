@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <jansson.h>
+#include <dirent.h>
 #include "helper.h"
 
 #ifdef _WIN32
-    #include <direct.h>
     #include <io.h>
     #include <sys/stat.h> // Include this
     #include <dirent.h>
