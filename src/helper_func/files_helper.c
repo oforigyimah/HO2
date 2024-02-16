@@ -51,7 +51,6 @@ long unsigned int get_noice(char *filepath){
 }
 
 void update_noice(char *filepath, int num){
-    return;
     long unsigned int prev_noice = get_noice(filepath);
     if(prev_noice != -1){
         FILE *fp;
@@ -180,6 +179,25 @@ int create_passed_hash_dir(){
     return 0;
 }
 
+int create_noice_dir(){
+    char *appDir = get_app_dir();
+    if (stat(appDir, &st) == -1){
+        if (create_app_dir() == -1){
+            perror("create app dir failed");
+            return -1;
+        }
+    }
+    char noiceDir[256];
+    sprintf(noiceDir, "%s/%s",appDir, ".noice");
+
+    if (stat(noiceDir, &st) == -1)
+        if (mkdir(noiceDir, 0700) == -1) {
+            perror("create noice dir failed");
+            return -1;
+        }
+    return 0;
+}
+
 
 
 int store_file_paths(const char *dir_path, hash_info **head) {
@@ -269,6 +287,7 @@ void init (){
     create_app_dir();
     create_passed_hash_dir();
     create_hash_dir();
+    create_noice_dir();
     user_info *info = get_user_info();
     write_user_info_to_json(info, get_user_info_path());
     if (check_internet_connection() == 1){

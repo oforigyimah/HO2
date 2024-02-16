@@ -84,12 +84,17 @@ do {
 
     pid_t pid_s[cores_to_use];
     int statuses[cores_to_use];
+#ifdef _WIN32
     char *program = "ho2_child.exe";
+#else
+    char *program = "./ho2_child";
+#endif
 
-    long unsigned int  noice = 0;
+
     char noice_str[50];
+    long unsigned int noice;
     while (1){
-
+        noice = get_noice(get_noice_path());
         ret = store_file_paths(get_passed_hash_dir_path(), &h_info);
         if (ret != -1){
             printf("----------------------------------------");
@@ -116,6 +121,7 @@ do {
                 }
                 h_info = head; // Reset h_info to point to the head of the list
             }
+            update_noice(get_noice_path(), cores_to_use);
         }
 
         for (int i = 0; i < cores_to_use; i++){

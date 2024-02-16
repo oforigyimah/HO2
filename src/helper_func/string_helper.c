@@ -106,14 +106,25 @@ char *get_user_info_path() {
         free(app_dir);
         return NULL;
     }
+
+#ifdef _WIN32
     char *user_info_path = malloc(strlen(app_dir) + strlen("\\user_info.json") + 1);
     if (user_info_path == NULL) {
         fprintf(stderr, "Error: Could not allocate memory for user_info_path.\n");
         free(app_dir);
-        free(user_info_path);
         return NULL;
     }
     sprintf(user_info_path, "%s\\user_info.json", app_dir);
+#else
+    char *user_info_path = malloc(strlen(app_dir) + strlen("/user_info.json") + 1);
+    if (user_info_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for user_info_path.\n");
+        free(app_dir);
+        return NULL;
+    }
+    sprintf(user_info_path, "%s/user_info.json", app_dir);
+#endif
+
     free(app_dir);
     return user_info_path;
 }
@@ -148,21 +159,62 @@ char *get_hash_path() {
     return hash_path;
 }
 
-char *get_noice_path() {
+char *get_noice_dir() {
     char *app_dir = get_app_dir();
     if (app_dir == NULL) {
-        free(app_dir);
         return NULL;
     }
-    char *noice_path = malloc(strlen(app_dir) + strlen("\\noice.txt") + 1);
+
+#ifdef _WIN32
+    char *noice_dir_path = malloc(strlen(app_dir) + strlen("\\.noice") + 1);
+    if (noice_dir_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for noice_dir_path.\n");
+        return NULL;
+    }
+
+    strcpy(noice_dir_path, app_dir);
+    strcat(noice_dir_path, "\\.noice");
+#else
+    char *noice_dir_path = malloc(strlen(app_dir) + strlen("/.noice") + 1);
+    if (noice_dir_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for noice_dir_path.\n");
+        return NULL;
+    }
+
+    strcpy(noice_dir_path, app_dir);
+    strcat(noice_dir_path, "/.noice");
+#endif
+
+        return noice_dir_path;
+}
+
+
+char *get_noice_path() {
+    char *noice_dir = get_noice_dir();
+    if (noice_dir == NULL) {
+        free(noice_dir);
+        return NULL;
+    }
+
+#ifdef _WIN32
+    char *noice_path = malloc(strlen(noice_dir) + strlen("\\noice.txt") + 1);
     if (noice_path == NULL) {
         fprintf(stderr, "Error: Could not allocate memory for noice_path.\n");
-        free(app_dir);
-        free(noice_path);
+        free(noice_dir);
         return NULL;
     }
-    sprintf(noice_path, "%s\\noice.txt", app_dir);
-    free(app_dir);
+    sprintf(noice_path, "%s\\noice.txt", noice_dir);
+#else
+    char *noice_path = malloc(strlen(noice_dir) + strlen("/noice.txt") + 1);
+    if (noice_path == NULL) {
+        fprintf(stderr, "Error: Could not allocate memory for noice_path.\n");
+        free(noice_dir);
+        return NULL;
+    }
+    sprintf(noice_path, "%s/noice.txt", noice_dir);
+#endif
+
+    free(noice_dir);
     return noice_path;
 }
 

@@ -14,7 +14,7 @@
     #include <openssl/evp.h>
 #endif
 
-#define ITERATIONS 20000
+#define ITERATIONS 2000000
 
 
 
