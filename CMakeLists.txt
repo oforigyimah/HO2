@@ -74,14 +74,15 @@ endforeach()
 
 if (WIN32)
     # Define the patterns to match
-    set(PATTERNS libcurl libhash libcrypto libssl libJansson libBcrypt)
+    set(PATTERNS "*.dll")
+    set(SEARCH_DIRS "C:\\msys64\\mingw64\\bin" )
 
     # Iterate over each directory
-    foreach(DIR ${LINK_DIRS})
+    foreach(DIR ${SEARCH_DIRS})
         # Iterate over each pattern
         foreach(PATTERN ${PATTERNS})
             # Get a list of all files that match the pattern
-            file(GLOB_RECURSE MATCHING_LIBS "${DIR}/*${PATTERN}*")
+            file(GLOB_RECURSE MATCHING_LIBS "${DIR}/${PATTERN}")
 
             # Check if the list is empty
             if(NOT MATCHING_LIBS)

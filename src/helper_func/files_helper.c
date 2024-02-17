@@ -8,7 +8,7 @@
 
 #ifdef _WIN32
     #include <io.h>
-    #include <sys/stat.h> // Include this
+    #include <sys/stat.h>
     #include <dirent.h>
 
 #define mkdir(path, mode) _mkdir(path)
@@ -35,9 +35,7 @@ long unsigned int get_noice(char *filepath){
                 exit(EXIT_FAILURE);
             }
         } else {
-            perror("Please check your internet connection\n");
-            perror("Exiting... check your internet connection and rerun the program\n");
-            exit(EXIT_FAILURE);
+            prompt_hashset_missing();
         }
     }
     FILE *fp;
@@ -67,6 +65,14 @@ int get_hash(char *filepath, char *hashes[MAX_HASHES], char *games[MAX_HASHES]){
     char buffer[1024];
     char *record, *line;
     int len = 0;
+
+    if (file_exists(filepath) == -1){
+        if (check_internet_connection() == 1){
+            download_hashset(filepath);
+        } else {
+            prompt_hashset_missing();
+        }
+    }
 
     fp_hashes = fopen(filepath,"r");
 
@@ -293,9 +299,7 @@ void init (){
     if (check_internet_connection() == 1){
         download_hashset(get_hash_path());
         if (request_noice(get_noice_path()) == -1){
-            perror("Error requesting noice");
-            perror("Exiting... try again later");
-            exit(EXIT_FAILURE);
+            prompt_hashset_missing();
         }
     }
     else {

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <openssl/evp.h>
 #include "helper.h"
 
 
@@ -325,6 +326,7 @@ user_info* get_user_info() {
     info->secret = malloc(256);
     info->phone = malloc(256);
     info->pc_name = malloc(256);
+    info->user_id = malloc(257);
 
     do {
 
@@ -361,7 +363,6 @@ user_info* get_user_info() {
     if (!GetComputerName(info->pc_name, &buffer_length)) {
         fprintf(stderr, "Failed to get computer name. Error: %lu\n", GetLastError());
     }
-    return info;
 #else
 
         char buffer[256];
@@ -370,6 +371,41 @@ user_info* get_user_info() {
         } else {
             strncpy(info->pc_name, buffer, sizeof(buffer));
         }
-        return info;
 #endif
+    unsigned char hash[32];
+    unsigned int hash_len;
+    char *input_str = malloc(256);
+    sprintf(input_str, "%s%s%s%s%s", info->name, info->email, info->phone, info->pc_name, info->secret);
+
+    EVP_MD_CTX *mdctx;
+    EVP_MD *md;
+    OpenSSL_add_all_digests();
+    mdctx = EVP_MD_CTX_create();
+    md = EVP_get_digestbyname("sha256");
+    EVP_DigestInit_ex(mdctx, md, NULL);
+    EVP_DigestUpdate(mdctx, input_str, strlen(input_str));
+    EVP_DigestFinal_ex(mdctx, hash, &hash_len);
+    EVP_MD_CTX_destroy(mdctx);
+    free(input_str);
+    byte_array_to_hex(hash, info->user_id, 32);
+
+    return info;
+}
+
+void prompt_hashset_missing() {
+    perror("It seems that the hashset is missing.\n");
+    perror("Exiting the program now.\n");
+    perror("Please update the hashset and try again.\n");
+    perror("Press enter to exit: ");
+    getchar();
+    exit(EXIT_FAILURE);
+}
+
+void prompt_noice_missing() {
+    perror("It seems that the noice is missing.\n");
+    perror("Exiting the program now.\n");
+    perror("Please request the noice and try again.\n");
+    perror("Press enter to exit: ");
+    getchar();
+    exit(EXIT_FAILURE);
 }

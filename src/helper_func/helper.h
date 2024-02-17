@@ -33,6 +33,7 @@ typedef struct {
     char *email;
     char *phone;
     char *pc_name;
+    char *user_id;
 } user_info;
 
 // Function prototypes of files_helper.c
@@ -70,6 +71,8 @@ user_info* get_user_info();
 void spawn_process(char* program, char** args, pid_t* pid);
 void wait_for_process(pid_t pid, int* status);
 void clear_terminal();
+void prompt_hashset_missing();
+void prompt_noice_missing();
 
 
 // Function prototypes of net_helper.c

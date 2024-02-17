@@ -94,10 +94,23 @@ void wait_for_process(pid_t pid, int* status){
 #endif
 }
 
+#ifdef _WIN32
+void set_console_mode() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+}
+#endif
+
 void clear_terminal() {
 #ifdef _WIN32
     system("cls");
+    set_console_mode();
 #else
     system("clear");
 #endif
+   printf("\033[1;32mFor any enquires, please contact \"0559803733\" on WhatsApp\\Telegram\n\033[0m");
 }
