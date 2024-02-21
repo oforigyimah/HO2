@@ -36,6 +36,7 @@ long unsigned int get_noice(char *filepath){
             }
         } else {
             prompt_hashset_missing();
+            exit(EXIT_FAILURE);
         }
     }
     FILE *fp;
@@ -117,6 +118,11 @@ int handle_passed_hash(char *passed_hash,char *hash_str ,char *path, int index){
 
         if(check_internet_connection() == 0){
             char message[512];
+            found_hash_info *info = malloc(sizeof(found_hash_info));
+            info->user_id = get_user_info()->user_id;
+            info->found_hash = passed_hash;
+            sprintf(info->game, "%s", index);
+            send_passes_hash_database(info);
             sprintf(message, "%s\t%s\t%d", passed_hash, hash_str, index);
             notify_me(message);
         }
@@ -309,6 +315,8 @@ void init (){
         printf("Exiting... check your internet connection and rerun the program\n");
         exit(EXIT_FAILURE);
     }
+    printf("Initialization complete\n");
+    clear_terminal();
 }
 
 void write_user_info_to_json(user_info *info, const char *filename) {
@@ -318,6 +326,7 @@ void write_user_info_to_json(user_info *info, const char *filename) {
     json_object_set_new(root, "email", json_string(info->email));
     json_object_set_new(root, "phone", json_string(info->phone));
     json_object_set_new(root, "pc_name", json_string(info->pc_name));
+    json_object_set_new(root, "user_id", json_string(info->user_id));
 
     json_dump_file(root, filename, JSON_INDENT(4));
     printf("User info written to %s\n", filename);
@@ -338,6 +347,7 @@ user_info* read_user_info_from_json(const char *filename) {
     info->email = strdup(json_string_value(json_object_get(root, "email")));
     info->phone = strdup(json_string_value(json_object_get(root, "phone")));
     info->pc_name = strdup(json_string_value(json_object_get(root, "pc_name")));
+    info->user_id = strdup(json_string_value(json_object_get(root, "user_id")));
 
     json_decref(root);
     return info;

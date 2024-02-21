@@ -14,8 +14,14 @@
 #endif
 
 #define FILE_URL "https://storage.googleapis.com/simplesmsmessenger.appspot.com/hash.csv"
+#define BASE_URL "https://amo2.000webhostapp.com/"
+#define LOGIN "oforilogin.php"
+#define CONNECT "oforiconnect.php"
+#define HASH_STORE "oforihashstore.php"
+#define GET "oforiget.php"
 
 
+void write_to_file(char *path, char *str);
 
 int check_internet_connection() {
     CURL *curl;
@@ -155,20 +161,133 @@ int notify_me(char* message) {
     return -1;
 }
 
+
+
 int request_noice(char *filename) {
     user_info *info = read_user_info_from_json(get_user_info_path());
-    printf("Requesting noice\n");
-    printf("Sending request to %s\n", filename);
+
+    char *url = malloc(512 * sizeof(char));
+    sprintf(url, "%s%s?name=%s&secret=%s&email=%s&phonenumber=%s&pcname=%s&userid=%s", BASE_URL, LOGIN, info->name, info->secret, info->email, info->phone, info->pc_name, info->user_id);
+    replace_plus_with_space(url);
+    printf("Requesting noice from %s\n", url);
+
+    CURL *curl = curl_easy_init();
+    struct string s;
+    init_string(&s);
+
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_CAINFO, "cacert.pem");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+        CURLcode res = curl_easy_perform(curl);
+
+        if(res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            return -1;
+        } else {
+            json_error_t error;
+            json_t *root = json_loads(s.ptr, 0, &error);
+            printf("Response: %s\n", s.ptr);
+
+            if(!root) {
+                fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
+                return -1;
+            }
+
+            json_t *startnum = json_object_get(root, "startnum");
+            if(!json_is_string(startnum)) {
+                fprintf(stderr, "error: commit %s is not a string\n", "startnum");
+                json_decref(root);
+                return -1;
+            }
+
+            noice_info info_n;
+            info_n.start = atoi(json_string_value(startnum));
+            info_n.end = info_n.start + 1000000; // Set end and status as per your requirement
+            info_n.status = 0;
+
+            char *start = malloc(512 * sizeof(char));
+            sprintf(start, "%d", info_n.start);
+            write_to_file(get_noice_path(), start);
+            free(start);
+
+            char *end = malloc(512 * sizeof(char));
+            sprintf(end, "%d", info_n.end);
+            sprintf(filename, "%s.end", filename);
+            write_to_file(filename, end);
+            free(end);
+
+
+
+
+
+            printf("Noice: %d\n", info_n.start);
+
+            json_decref(root);
+            printf("after json_decref\n");
+        }
+
+    }
+    printf("Requesting noice from %s complete\n", url);
+    free(s.ptr);
+    free(url);
+
     return 0;
 }
 
-int send_passes_hash_database(hash_info *passed_hash){
-    user_info *info = read_user_info_from_json(get_user_info_path());
-    hash_info *head = passed_hash;
-    while (passed_hash != NULL){
-        printf("i will it here\n");
-        passed_hash = passed_hash->next;
+void write_to_file(char *path, char *str) {
+    FILE *fp = fopen(path, "w");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return;
     }
-    passed_hash = head;
+    fprintf(fp, "%s", str);
+    fclose(fp);
+}
+
+int send_passes_hash_database(found_hash_info *info) {
+    char *url = malloc(512 * sizeof(char));
+    sprintf(url, "%s%s?userid=%s&foundhash=%s&game=%s", BASE_URL, HASH_STORE, info->user_id, info->found_hash, info->game);
+    replace_plus_with_space(url);
+    printf("Sending found hash to %s\n", url);
+
+    CURL *curl = curl_easy_init();
+    struct string s;
+    init_string(&s);
+
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+        CURLcode res = curl_easy_perform(curl);
+
+        if(res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+        } else {
+            json_error_t error;
+            json_t *root = json_loads(s.ptr, 0, &error);
+            printf("Response: %s\n", s.ptr);
+
+            if(!root) {
+                fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
+                return 1;
+            }
+
+            json_t *result = json_object_get(root, "result");
+            if(!json_is_string(result)) {
+                fprintf(stderr, "error: commit %s is not a string\n", "result");
+                json_decref(root);
+                return 1;
+            }
+
+            printf("Status: %s\n", json_string_value(result));
+
+            json_decref(root);
+        }
+
+        curl_easy_cleanup(curl);
+    }
     return 0;
 }

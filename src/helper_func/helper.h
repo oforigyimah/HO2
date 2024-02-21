@@ -36,6 +36,24 @@ typedef struct {
     char *user_id;
 } user_info;
 
+typedef struct {
+    unsigned int start;
+    unsigned int end;
+    int status;
+} noice_info;
+
+typedef struct {
+    char *user_id;
+    char *found_hash;
+    char *game;
+} found_hash_info;
+
+struct string {
+    char *ptr;
+    size_t len;
+};
+
+
 // Function prototypes of files_helper.c
 long unsigned int get_noice(char *filepath);
 void update_noice(char *filepath, int num);
@@ -66,7 +84,9 @@ char *get_noice_dir();
 char *get_noice_path();
 cpu_info get_cpu_info();
 user_info* get_user_info();
-
+void init_string(struct string *s);
+size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s);
+void replace_plus_with_space(char *str);
 // Function prototypes of sys_mam_helper.c
 void spawn_process(char* program, char** args, pid_t* pid);
 void wait_for_process(pid_t pid, int* status);
@@ -80,6 +100,6 @@ int check_internet_connection();
 void download_hashset(char *path);
 int notify_me(char* message);
 int request_noice(char *filename);
-int send_passes_hash_database(hash_info *passed_hash);
+int send_passes_hash_database(found_hash_info *info);
 
 #endif // HELPER_H

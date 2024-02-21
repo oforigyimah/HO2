@@ -409,3 +409,43 @@ void prompt_noice_missing() {
     getchar();
     exit(EXIT_FAILURE);
 }
+
+void init_string(struct string *s) {
+    s->len = 0;
+    s->ptr = malloc(s->len+1);
+    if (s->ptr == NULL) {
+        fprintf(stderr, "malloc() failed\n");
+        exit(EXIT_FAILURE);
+    }
+    s->ptr[0] = '\0';
+}
+
+size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
+{
+    size_t new_len = s->len + size*nmemb;
+    s->ptr = realloc(s->ptr, new_len+1);
+    if (s->ptr == NULL) {
+        fprintf(stderr, "realloc() failed\n");
+        exit(EXIT_FAILURE);
+    }
+    memcpy(s->ptr+s->len, ptr, size*nmemb);
+    s->ptr[new_len] = '\0';
+    s->len = new_len;
+
+    return size*nmemb;
+}
+
+void replace_plus_with_space(char *str) {
+    if (str == NULL) {
+        fprintf(stderr, "Error: NULL string passed to replace_plus_with_space\n");
+        return;
+    }
+    int i = 0;
+    while (str[i] != '\0') {
+        if (str[i] == ' ') {
+            str[i] = '+';
+        }
+        i++;
+    }
+}
+

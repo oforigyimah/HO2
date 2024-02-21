@@ -4,8 +4,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <openssl/evp.h>
+#include <time.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 int main(int argc, char *argv[]){
+#ifdef _WIN32
+    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+#endif
 
     if (argc != 2){
         printf("Usage: %s <noice>\n", argv[0]);
@@ -26,6 +34,9 @@ int main(int argc, char *argv[]){
     EVP_MD_CTX *mdctx;
     OpenSSL_add_all_digests();
     mdctx = EVP_MD_CTX_create();
+
+    clock_t start, end;
+    double cpu_time_used;
 
     int hash_count;
     char *hashes_path = get_hash_path();
@@ -64,6 +75,8 @@ int main(int argc, char *argv[]){
 
     hash_count = get_hash(hashes_path, hashes, games);
 
+    start = clock();
+
     for (int q= 0; q < 2; q++){
         if (q) sprintf(noice_str, "%ld", noice);
         else sprintf(noice_str, "-%ld", noice);
@@ -88,6 +101,9 @@ int main(int argc, char *argv[]){
         }
     }
 
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken of noice: %ld %fs second\n",noice, cpu_time_used);
 
     EVP_MD_CTX_destroy(mdctx);
     OPENSSL_cleanup();

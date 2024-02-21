@@ -19,6 +19,18 @@ int main(){
         printf("File does not exist\n");
     }
 
+    request_noice("hello");
+
+    found_hash_info *info = (found_hash_info*)malloc(sizeof(found_hash_info));
+    info->found_hash = "hello";
+    info->game = "21";
+    info->user_id = "1";
+    printf("Begin testing for send_passes_hash_database\n");
+    send_passes_hash_database(info);
+    printf("Testing for send_passes_hash_database\n");
+    free(info);
+    info = NULL;
+
     return 0;
 
 }

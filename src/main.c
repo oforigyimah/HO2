@@ -1,28 +1,26 @@
 #include "helper_func/helper.h"
 #include <stdio.h>
+#include <malloc.h>
+#include <stdlib.h>
 
 #define PRINT_LINE(TITLE) printf("\n\n*************************** %s ******************************\n\n", TITLE)
 
-void print_user_info(){
-
-    user_info *user = read_user_info_from_json(get_user_info_path());
-
-    printf("User Info\n");
-    printf("Name: %s\n", user->name);
-    printf("Secret: %s\n", user->secret);
-    printf("Email: %s\n", user->email);
-    printf("Phone: %s\n", user->phone);
-    printf("PC Name: %s\n", user->pc_name);
-}
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err34-c"
 int main(){
 
+#ifdef _WIN32
+    int results = system("icacls .\\hashes /grant Everyone:(OI)(CI)F /T");
+    if (results != 0){
+        printf("Failed to grant permission to hashes directory\n");
+        exit(EXIT_FAILURE);
+    }
+#endif
 
     init();
     PRINT_LINE("Welcome");
-    char *welcome = "Welcome to the main function";
+    char *welcome = "Welcome to HO2\nThis program is designed to  find the hash of a number\nand compare it with the hashset to find the number\nthat matches the hash.\n";
     char *notice = "This program needs hashset to work properly.\nPlease make sure that you update the hashset at least\nonce a day";
     char c;
     int cores_to_use;
@@ -69,7 +67,7 @@ do {
     printf("\n");
     printf("You are using %d cores of your total %d cores\n", cores_to_use, cpu.cores);
     printf("Press Enter to continue: ");
-    while(getchar() != '\n'); // This line consumes the newline character
+    while(getchar() != '\n');
     if(result != 1) {
         printf("Invalid input, must be integer\n");
     }
@@ -116,7 +114,13 @@ do {
                 char message[512];
                 while (h_info != NULL){
                     sprintf(message, "Hash: %s\nGame: %s\nPath: %s\n", h_info->hash, h_info->game, h_info->path);
+                    found_hash_info *info = (found_hash_info*)malloc(sizeof(found_hash_info));
+                    info->found_hash = h_info->hash;
+                    info->game = h_info->game;
+                    info->user_id = get_user_info()->name;
+                    send_passes_hash_database(info);
                     notify_me(message);
+                    free(info);
                     h_info = h_info->next;
                 }
                 h_info = head; // Reset h_info to point to the head of the list
