@@ -24,10 +24,17 @@
 void write_to_file(char *path, char *str);
 
 int check_internet_connection() {
+    char *cert_path = malloc(256);
+#ifdef _WIN32
+    sprintf(cert_path, "%s\\%s", get_app_dir(), "cacert.pem");
+#else
+    sprintf(cert_path, "%s/%s", get_app_dir(), "cacert.pem")
+#endif
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();
     if(curl) {
+        curl_easy_setopt(curl, CURLOPT_CAINFO, ".\\cacert.pem");
         curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com");
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
         res = curl_easy_perform(curl);
@@ -41,6 +48,7 @@ int check_internet_connection() {
         curl_easy_cleanup(curl);
         return 1;
     }
+    clear_terminal();
     return 0;
 }
 
@@ -102,6 +110,7 @@ void download_hashset(char *path) {
             return;
         }
     }
+    clear_terminal();
 }
 
 
@@ -152,7 +161,7 @@ int notify_me(char* message) {
             curl_global_cleanup();
             return -1;
         }
-
+        clear_terminal();
         curl_global_cleanup();
         return 0;
     }
@@ -232,6 +241,7 @@ int request_noice(char *filename) {
     printf("Requesting noice from %s complete\n", url);
     free(s.ptr);
     free(url);
+    clear_terminal();
 
     return 0;
 }
@@ -289,5 +299,6 @@ int send_passes_hash_database(found_hash_info *info) {
 
         curl_easy_cleanup(curl);
     }
+    clear_terminal();
     return 0;
 }

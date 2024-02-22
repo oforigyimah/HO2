@@ -3,7 +3,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 
-#define PRINT_LINE(TITLE) printf("\n\n*************************** %s ******************************\n\n", TITLE)
+#define PRINT_LINE(TITLE) printf("\n\n************************ %s *************************\n\n", TITLE)
 
 
 #pragma clang diagnostic push
@@ -32,13 +32,7 @@ int main(){
 
     init();
 
-    PRINT_LINE("CPU Info");
-    cpu_info cpu = get_cpu_info();
-    printf("Cpu model is %s\n", cpu.model);
-    printf("cpu cores is %d\n", cpu.cores);
-    printf("cpu clock speed is %f Mhz\n", cpu.speed);
-
-    PRINT_LINE("Options\n");
+    PRINT_LINE("Options");
 
     printf("Enter 1 to Update hashset\n");
     printf("Enter 2 to start computation\n");
@@ -49,7 +43,7 @@ int main(){
     switch (c) {
         case '1':
             download_hashset(get_hash_path());
-            printf("Updating hashset S \n");
+            printf("Hashset update\n");
         case '2':
             printf("Starting computation\n");
             break;
@@ -58,6 +52,12 @@ int main(){
             printf("starting computation\n");
     }
 
+
+    PRINT_LINE("CPU Info");
+    cpu_info cpu = get_cpu_info();
+    printf("Cpu model is %s\n", &cpu.model);
+    printf("cpu cores is %d\n", cpu.cores);
+    printf("cpu clock speed is %f Mhz\n", cpu.speed);
     printf("It's recommended not to enter a number greater than the number of cores on your cpu\n");
 
    int result;
