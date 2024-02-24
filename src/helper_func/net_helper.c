@@ -34,8 +34,8 @@ int check_internet_connection() {
     CURLcode res;
     curl = curl_easy_init();
     if(curl) {
-        curl_easy_setopt(curl, CURLOPT_CAINFO, ".\\cacert.pem");
         curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com");
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
         res = curl_easy_perform(curl);
         /* Check for errors */
@@ -85,6 +85,7 @@ void download_hashset(char *path) {
             return;
         }
         curl_easy_setopt(curl, CURLOPT_URL, FILE_URL);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 
@@ -146,6 +147,7 @@ int notify_me(char* message) {
         char *payload = json_dumps(root, 0);
 
         curl_easy_setopt(curl, CURLOPT_URL, "https://mmd5p6.api.infobip.com/sms/2/text/advanced");
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
 
@@ -186,7 +188,7 @@ int request_noice(char *filename) {
 
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_CAINFO, "cacert.pem");
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
         CURLcode res = curl_easy_perform(curl);
@@ -268,6 +270,7 @@ int send_passes_hash_database(found_hash_info *info) {
 
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
         CURLcode res = curl_easy_perform(curl);

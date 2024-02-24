@@ -44,6 +44,9 @@ int main(){
         case '1':
             download_hashset(get_hash_path());
             printf("Hashset update\n");
+            if (file_exists(get_noice_path()) != 0){
+                request_noice(get_noice_path());
+            }
         case '2':
             printf("Starting computation\n");
             break;

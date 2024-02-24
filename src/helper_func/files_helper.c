@@ -9,7 +9,6 @@
 #ifdef _WIN32
     #include <io.h>
     #include <sys/stat.h>
-    #include <dirent.h>
 
 #define mkdir(path, mode) _mkdir(path)
     #define stat _stat
@@ -30,13 +29,19 @@ long unsigned int get_noice(char *filepath){
     if (file_exists(filepath) == -1){
         if (check_internet_connection() == 1){
             if (request_noice(get_noice_path()) == -1) {
-                perror("Error requesting noice");
-                perror("Exiting... try again later");
+                perror("Error requesting noice\n");
+                perror("Exiting... try again later\n");
+                printf("Press enter to exit: ");
+                scanf("%s");
                 exit(EXIT_FAILURE);
             }
         } else {
-            prompt_hashset_missing();
+            perror("Internet connection require to get noice\n");
+            perror("Please connect to internet and try again\n");
+            printf("Press Enter to Exit: ");
+            scanf("%s");
             exit(EXIT_FAILURE);
+
         }
     }
     FILE *fp;
