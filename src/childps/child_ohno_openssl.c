@@ -17,6 +17,8 @@ int main(int argc, char *argv[]){
 
     if (argc != 2){
         printf("Usage: %s <noice>\n", argv[0]);
+        printf("Press Enter to continue: ");
+        while(getchar() != '\n');
         exit(EXIT_FAILURE);
     }
 

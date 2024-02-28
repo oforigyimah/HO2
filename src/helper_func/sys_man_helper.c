@@ -77,7 +77,8 @@ void spawn_process(char* program, char** args, pid_t* pid) {
     } else if (*pid == 0) {
         if (execvp(program, args) == -1) {
             perror("Error executing program");
-            exit(EXIT_FAILURE);
+            printf("Press Enter to continue: ");
+            while(getchar() != '\n');
         }
     }
 #endif

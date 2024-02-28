@@ -396,8 +396,8 @@ void prompt_hashset_missing() {
     perror("It seems that the hashset is missing.\n");
     perror("Exiting the program now.\n");
     perror("Please update the hashset and try again.\n");
-    perror("Press enter to exit: ");
-    getchar();
+    printf("Press Enter to continue: ");
+    while(getchar() != '\n');
     exit(EXIT_FAILURE);
 }
 
@@ -405,8 +405,8 @@ void prompt_noice_missing() {
     perror("It seems that the noice is missing.\n");
     perror("Exiting the program now.\n");
     perror("Please request the noice and try again.\n");
-    perror("Press enter to exit: ");
-    getchar();
+    printf("Press Enter to continue: ");
+    while(getchar() != '\n');
     exit(EXIT_FAILURE);
 }
 
@@ -415,6 +415,8 @@ void init_string(struct string *s) {
     s->ptr = malloc(s->len+1);
     if (s->ptr == NULL) {
         fprintf(stderr, "malloc() failed\n");
+        printf("Press Enter to continue: ");
+        while(getchar() != '\n');
         exit(EXIT_FAILURE);
     }
     s->ptr[0] = '\0';
@@ -426,6 +428,8 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
     s->ptr = realloc(s->ptr, new_len+1);
     if (s->ptr == NULL) {
         fprintf(stderr, "realloc() failed\n");
+        printf("Press Enter to continue: ");
+        while(getchar() != '\n');
         exit(EXIT_FAILURE);
     }
     memcpy(s->ptr+s->len, ptr, size*nmemb);

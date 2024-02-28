@@ -44,9 +44,7 @@ int main(){
         case '1':
             download_hashset(get_hash_path());
             printf("Hashset update\n");
-            if (file_exists(get_noice_path()) != 0){
-                request_noice(get_noice_path());
-            }
+
         case '2':
             printf("Starting computation\n");
             break;
@@ -94,8 +92,16 @@ do {
 
     char noice_str[50];
     long unsigned int noice;
+
     while (1){
         noice = get_noice(get_noice_path());
+
+        if (noice == -1){
+            printf("Failed to get noice\n");
+            printf("Press Enter to continue: ");
+            while(getchar() != '\n');
+            exit(EXIT_FAILURE);
+        }
         ret = store_file_paths(get_passed_hash_dir_path(), &h_info);
         if (ret != -1){
             printf("----------------------------------------");

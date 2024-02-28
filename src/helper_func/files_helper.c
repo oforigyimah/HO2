@@ -31,15 +31,15 @@ long unsigned int get_noice(char *filepath){
             if (request_noice(get_noice_path()) == -1) {
                 perror("Error requesting noice\n");
                 perror("Exiting... try again later\n");
-                printf("Press enter to exit: ");
-                scanf("%s");
+                printf("Press Enter to continue: ");
+                while(getchar() != '\n');
                 exit(EXIT_FAILURE);
             }
         } else {
             perror("Internet connection require to get noice\n");
             perror("Please connect to internet and try again\n");
-            printf("Press Enter to Exit: ");
-            scanf("%s");
+            printf("Press Enter to continue: ");
+            while(getchar() != '\n');
             exit(EXIT_FAILURE);
 
         }
@@ -50,6 +50,15 @@ long unsigned int get_noice(char *filepath){
     if (fp != NULL){
         fscanf(fp, "%ld", &noice);
         fclose(fp);
+        if (noice == -1){
+            if (request_noice(get_noice_path()) == -1){
+                perror("Error requesting noice\n");
+                perror("Exiting... try again later\n");
+                printf("Press Enter to continue: ");
+                while(getchar() != '\n');
+                exit(EXIT_FAILURE);
+            }
+        }
     }
     return noice;
 }
