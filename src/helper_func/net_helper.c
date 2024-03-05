@@ -24,12 +24,7 @@
 void write_to_file(char *path, char *str);
 
 int check_internet_connection() {
-    char *cert_path = malloc(256);
-#ifdef _WIN32
-    sprintf(cert_path, "%s\\%s", get_app_dir(), "cacert.pem");
-#else
-    sprintf(cert_path, "%s/%s", get_app_dir(), "cacert.pem")
-#endif
+
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();

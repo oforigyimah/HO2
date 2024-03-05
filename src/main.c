@@ -86,7 +86,7 @@ do {
 #ifdef _WIN32
     char *program = "ho2_child.exe";
 #else
-    char *program = "./ho2_child";
+    char *program = "ho2_child";
 #endif
 
 
@@ -134,7 +134,6 @@ do {
                 }
                 h_info = head; // Reset h_info to point to the head of the list
             }
-            update_noice(get_noice_path(), cores_to_use);
         }
 
         for (int i = 0; i < cores_to_use; i++){
@@ -142,7 +141,7 @@ do {
             sprintf(noice_str, "%lu", arg);
             char *args[] = {"/c", noice_str, NULL};
             spawn_process(program, args, &pid_s[i]);
-            printf("Noice: %d has started\n", arg);
+            printf("Noice: %lu has started\n", arg);
         }
 
         for (int i = 0; i < cores_to_use; i++){
